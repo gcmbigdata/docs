@@ -3,9 +3,9 @@
   "theme": "mint",
   "name": "Big Data Docs",
   "colors": {
-    "primary": "#16A34A",
-    "light": "#07C983",
-    "dark": "#15803D"
+    "primary": "#01B0C1",
+    "light": "#01B0C1",
+    "dark": "#01B0C1"
   },
   "favicon": "/favicon.svg",
   "navigation": {
