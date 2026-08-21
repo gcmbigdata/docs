@@ -1,0 +1,44 @@
+---
+title: "Vista general de la estructura del servidor"
+sidebarTitle: "Vista general"
+description: "Diagrama consolidado del servidor RPATIC: proyectos, certificados SSL, configuración principal de Nginx y archivos .conf por aplicación."
+---
+
+La estructura principal del servidor puede resumirse de la siguiente manera:
+
+```text
+/home/rpatic
+│
+├── ssl
+│   ├── fullchain.crt
+│   └── tls.key
+│
+└── Documentos
+    │
+    └── projects
+        │
+        ├── ATLAS
+        ├── pm2-view
+        ├── containers-view
+        ├── Api-Report-Giro-Cama
+        ├── Api-Ruta-Oncologica
+        ├── gestion-autorizaciones
+        ├── paciente-trazador
+        ├── smart-lab
+        └── ...
+
+
+/etc/nginx
+│
+└── conf.d
+    │
+    ├── rpatic.conf
+    │
+    └── apps
+        ├── atlas.conf
+        ├── pm2-view.conf
+        ├── container-view.conf
+        ├── api-giro-cama.conf
+        ├── reportes.conf
+        └── ...
+```

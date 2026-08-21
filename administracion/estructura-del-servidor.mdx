@@ -1,0 +1,119 @@
+---
+title: "Estructura del servidor RPATIC"
+sidebarTitle: "Estructura del servidor"
+description: "Organización del servidor RPATIC: directorio del usuario, proyectos, configuración Nginx, certificados SSL y herramientas de monitorización."
+---
+
+El servidor RPATIC contiene los proyectos, aplicaciones, configuraciones, certificados, herramientas de monitorización y recursos utilizados por el ecosistema de Big Data.
+
+La estructura del servidor se encuentra organizada principalmente en:
+
+- Directorio personal del usuario `rpatic`.
+- Directorio de proyectos.
+- Configuración de Nginx.
+- Certificados SSL.
+- Herramientas de monitorización.
+- Aplicaciones y recursos utilizados por procesos RPA.
+
+## Directorio principal del usuario
+
+El directorio principal del usuario `rpatic` se encuentra en:
+
+```text
+/home/rpatic
+```
+
+La estructura actual del directorio es:
+
+```text
+/home/rpatic
+├── agendamiento_citas.html
+├── ASIGNACION DE CARPETAS RPA
+├── dashboard_especialistas_v7.html
+├── Dashboard_Facturacion_por_Servicio.html
+├── dashboard_gestion_autorizaciones.html
+├── Descargas
+├── Documentos
+├── Escritorio
+├── facturacion-servicios
+├── Imágenes
+├── JuntaMedica.html
+├── micro-2.0.15  # editor que permite copiar y pegar a diferencia de nano/vi; vim
+├── minio
+├── Monitoreo_Fetal
+├── Música
+├── Plantillas
+├── Público
+├── ssl
+└── Vídeos
+```
+
+Esos HTML puedes encontrarlos en el repositorio institucional, al cual puedes acceder a través de este enlace: [htmls](https://github.com/bigdata-gcm/htmls).
+
+<Warning>
+  Recuerda pedir al coordinador de Big Data que te dé acceso como colaborador a estos repositorios, ya que son privados.
+</Warning>
+
+## Directorios relevantes
+
+| Directorio | Descripción |
+| --- | --- |
+| Documentos | Contiene los proyectos y documentación del ecosistema. |
+| ssl | Contiene los certificados y claves utilizados para HTTPS. |
+| minio | Recursos relacionados con MinIO. |
+| micro-2.0.15 | Editor de texto moderno para la línea de comandos (terminal), diseñado para ser intuitivo, fácil de usar y muy potente. Funciona como una alternativa superior y más amigable a editores clásicos como Nano y Vim. |
+| facturacion-servicios | Recursos relacionados con procesos de facturación. |
+| ASIGNACION DE CARPETAS RPA | Carpeta compartida utilizada en un proyecto de automatización, para asignarle carpetas a las facturas. |
+
+## Directorio de proyectos
+
+Los proyectos de desarrollo se encuentran centralizados en:
+
+```text
+/home/rpatic/Documentos/projects
+```
+
+Para acceder al directorio:
+
+```bash
+cd ~/Documentos/projects
+```
+
+Encontrarás una estructura como esta:
+
+```text
+projects/
+├── Api-Report-Giro-Cama
+├── Api-Ruta-Oncologica
+├── asignacin-facturas
+├── asignacion-facturas-publico
+├── ATLAS
+├── automation-enterprise-excel
+├── automation-gmail-excel
+├── automation-gmail-whatsapp
+├── cartera-dashboard
+├── containers-view
+├── Control-Cumplimiento
+├── control-venopunciones-backend
+├── control-venopunciones-front
+├── data-distribution
+├── email-automation
+├── estudios-errados
+├── estudios-laboratorio-medilab
+├── export-excel-api
+├── gestion-autorizaciones
+├── infra-bootstrap
+├── paciente-sin-egreso
+├── paciente-sin-egreso-frontend
+├── paciente-trazador
+├── pm2-view
+├── reports-presidentials
+├── rpa-assing-dir
+├── rpa-cons-inf
+├── rpa-ctg
+├── ruta-oncologica-frontend
+├── seguridad_pacientes
+└── smart-lab
+```
+
+Este directorio constituye la ubicación principal de los proyectos de desarrollo utilizados y desplegados en el servidor.

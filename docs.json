@@ -1,11 +1,11 @@
 {
   "$schema": "https://mintlify.com/docs.json",
-  "theme": "maple",
+  "theme": "mint",
   "name": "Big Data GCM",
   "colors": {
-    "primary": "#01B0C1",
-    "light": "#F8FAFC",
-    "dark": "#01B0C1"
+    "primary": "#16A34A",
+    "light": "#07C983",
+    "dark": "#15803D"
   },
   "favicon": "/favicon.svg",
   "navigation": {
@@ -18,50 +18,101 @@
         ]
       }
     ],
-    "groups": [
+    "tabs": [
       {
-        "group": "Introducción",
-        "pages": [
-          "index",
-          "evolucion-de-la-arquitectura",
-          "atlas"
+        "tab": "Sección 1: Flujo Big Data",
+        "groups": [
+          {
+            "group": "Introducción",
+            "pages": [
+              "index",
+              "evolucion-de-la-arquitectura",
+              "atlas"
+            ]
+          },
+          {
+            "group": "PM2 y Podman",
+            "pages": [
+              "gestion-de-procesos-con-pm2",
+              "pm2-view",
+              "proyectos-que-requieren-podman",
+              "containers-view",
+              "relacion-entre-pm2-y-podman"
+            ]
+          },
+          {
+            "group": "Proyectos",
+            "pages": [
+              "estructura-de-los-proyectos-desplegados",
+              "documentacion-obligatoria-por-proyecto",
+              "procedimiento-de-actualizacion/introduccion",
+              "procedimiento-de-actualizacion/checklist-de-despliegue"
+            ]
+          },
+          {
+            "group": "Equipo y ecosistema",
+            "pages": [
+              "principio-de-documentacion-para-nuevos-integrantes",
+              "responsabilidad-de-mantenimiento",
+              "arquitectura-actual",
+              "herramientas-principales",
+              "regla-general-del-ecosistema",
+              "variables-de-entorno-centralizadas"
+            ]
+          }
         ]
       },
       {
-        "group": "PM2 y Podman",
-        "pages": [
-          "gestion-de-procesos-con-pm2",
-          "pm2-view",
-          "proyectos-que-requieren-podman",
-          "containers-view",
-          "relacion-entre-pm2-y-podman"
+        "tab": "Sección 2: Guía del servidor",
+        "groups": [
+          {
+            "group": "Acceso por SSH",
+            "pages": [
+              "servidor/generar-clave-ssh",
+              "servidor/configurar-ssh-publica",
+              "servidor/verificacion-de-permisos",
+              "servidor/configuracion-del-cliente-ssh",
+              "servidor/realizar-la-conexion",
+              "servidor/consideraciones-de-seguridad",
+              "servidor/resumen-del-procedimiento"
+            ]
+          }
         ]
       },
       {
-        "group": "Proyectos",
-        "pages": [
-          "estructura-de-los-proyectos-desplegados",
-          "documentacion-obligatoria-por-proyecto",
-          "procedimiento-de-actualizacion/introduccion",
-          "procedimiento-de-actualizacion/checklist-de-despliegue"
-        ]
-      },
-      {
-        "group": "Equipo y ecosistema",
-        "pages": [
-          "principio-de-documentacion-para-nuevos-integrantes",
-          "responsabilidad-de-mantenimiento",
-          "arquitectura-actual",
-          "herramientas-principales",
-          "regla-general-del-ecosistema",
-          "variables-de-entorno-centralizadas"
+        "tab": "Sección 3: Administración y Operación",
+        "groups": [
+          {
+            "group": "Estructura del servidor",
+            "pages": [
+              "administracion/estructura-del-servidor"
+            ]
+          },
+          {
+            "group": "Nginx",
+            "pages": [
+              "administracion/nginx/introduccion",
+              "administracion/nginx/configuracion-individual-de-aplicaciones",
+              "administracion/nginx/relacion-entre-proyectos-y-nginx"
+            ]
+          },
+          {
+            "group": "Infraestructura y despliegue",
+            "pages": [
+              "administracion/certificados-ssl",
+              "administracion/vista-general-de-la-estructura",
+              "administracion/flujo-de-una-aplicacion-desplegada",
+              "administracion/organizacion-de-un-nuevo-proyecto",
+              "administracion/principio-de-organizacion"
+            ]
+          }
         ]
       }
     ]
   },
   "logo": {
-    "light": "/images/LOGOS-GRUPO-CLINICA-MEDICOS.svg",
-    "dark": "/images/LOGOS-GRUPO-CLINICA-MEDICOS.svg"
+    "light": "/logo/light.svg",
+    "dark": "/logo/dark.svg"
   },
   "contextual": {
     "options": [
@@ -74,22 +125,5 @@
       "cursor",
       "vscode"
     ]
-  },
-  "appearance": {
-    "default": "dark"
-  },
-  "icons": {
-    "library": "fontawesome"
-  },
-  "fonts": {
-    "family": "Geist"
-  },
-  "styling": {
-    "codeblocks": {
-      "theme": {
-        "light": "dracula",
-        "dark": "ayu-dark"
-      }
-    }
   }
 }

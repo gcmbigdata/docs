@@ -1,0 +1,31 @@
+---
+title: "Flujo de una aplicación desplegada en el servidor"
+sidebarTitle: "Flujo de despliegue"
+description: "Trayecto de una aplicación desde GitHub hasta el usuario final: código, proceso PM2 o contenedor Podman, Nginx y engine.clinicamedicos.com."
+---
+
+Una aplicación independiente puede involucrar varias capas dentro del servidor.
+
+```text
+                         GitHub
+                            ↓
+                    Código del proyecto
+                            ↓
+              ~/Documentos/projects/<proyecto>
+                            ↓
+                 Proceso de aplicación
+                       ↙        ↘
+                     PM2       Podman
+                       ↘        ↙
+                          Nginx
+                            ↓
+             engine.clinicamedicos.com
+                            ↓
+                         Usuario
+```
+
+No todos los proyectos utilizan Podman. Su utilización depende de los requerimientos específicos de cada aplicación.
+
+<Warning>
+  Los nuevos desarrollos deben evaluar su incorporación dentro de **ATLAS** antes de crear una nueva infraestructura independiente.
+</Warning>

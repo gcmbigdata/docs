@@ -1,0 +1,135 @@
+---
+title: "Resumen del procedimiento de acceso al servidor"
+sidebarTitle: "Resumen del procedimiento"
+description: "Pasos consolidados para acceder al servidor RPATIC: generar claves, autorizar IP, entregar la clave pública y conectarse con ssh rpatic."
+---
+
+Procedimiento completo, paso a paso, para configurar el acceso al servidor RPATIC desde cero.
+
+## Paso 1. Generar la clave SSH
+
+Desde PowerShell:
+
+```powershell
+ssh-keygen -t ed25519 -C "tu_correo@example.com"
+```
+
+Esto generará un par de claves dentro de:
+
+```text
+C:\Users\tu_usuario\.ssh\
+```
+
+Los archivos generados serán:
+
+```text
+id_ed25519       → Clave privada
+id_ed25519.pub   → Clave pública
+```
+
+<Warning>
+  La clave privada `id_ed25519` **nunca debe compartirse**.
+</Warning>
+
+## Paso 2. Identificar la clave pública
+
+La clave que se debe entregar al administrador es:
+
+```text
+C:\Users\tu_usuario\.ssh\id_ed25519.pub
+```
+
+Para visualizarla desde PowerShell:
+
+```powershell
+Get-Content C:\Users\tu_usuario\.ssh\id_ed25519.pub
+```
+
+Se debe copiar el contenido completo de la clave pública.
+
+## Paso 3. Solicitar autorización
+
+Solicitar al encargado de Infraestructura, Seguridad o a un usuario con los privilegios correspondientes que:
+
+1. Autorice la **IP del equipo de desarrollo** para acceder al servidor.
+2. Agregue la clave pública proporcionada al archivo:
+   ```text
+   ~/.ssh/authorized_keys
+   ```
+   del usuario `rpatic` en el servidor.
+
+<Warning>
+  La clave privada **nunca** debe ser enviada al administrador. Únicamente se entrega la clave pública (`id_ed25519.pub`).
+</Warning>
+
+## Paso 4. Configurar SSH
+
+En el equipo de desarrollo, crear o editar el archivo:
+
+```text
+C:\Users\tu_usuario\.ssh\config
+```
+
+Agregar:
+
+```ssh-config
+Host rpatic
+    HostName 172.16.1.127
+    User rpatic
+    Port 225
+    IdentityFile C:\Users\tu_usuario\.ssh\id_ed25519
+```
+
+## Paso 5. Conectarse al servidor
+
+Una vez autorizada la IP y configurado el acceso mediante la clave pública, ejecutar desde PowerShell:
+
+```powershell
+ssh rpatic
+```
+
+SSH utilizará automáticamente la configuración definida en el archivo `config`.
+
+## Paso 6. Verificar el acceso
+
+Una vez establecida la conexión, el usuario tendrá acceso al servidor utilizando la cuenta `rpatic` y contará con los permisos asignados a dicha cuenta.
+
+## Flujo resumido
+
+```text
+1. Generar claves SSH
+        ↓
+2. Obtener id_ed25519.pub
+        ↓
+3. Solicitar autorización de la IP
+        ↓
+4. Entregar id_ed25519.pub al administrador
+        ↓
+5. Administrador agrega la clave a authorized_keys
+        ↓
+6. Configurar ~/.ssh/config en el PC
+        ↓
+7. Ejecutar: ssh rpatic
+        ↓
+8. Verificar acceso al servidor
+```
+
+<Note>
+  **Nota para Windows:** cuando la documentación haga referencia a `~/.ssh/id_ed25519.pub` en Linux, en tu caso debes entenderlo como:
+
+  ```text
+  C:\Users\tu_usuario\.ssh\id_ed25519.pub
+  ```
+
+  Y la clave privada corresponde a:
+
+  ```text
+  C:\Users\tu_usuario\.ssh\id_ed25519
+  ```
+
+  La diferencia es importante: **`.pub` = clave pública que se entrega al administrador; sin `.pub` = clave privada que permanece en tu PC.**
+</Note>
+
+<Warning>
+  IMPORTANTE: pedirle al encargado de infraestructura que le dé acceso a tu IP al servidor.
+</Warning>

@@ -1,0 +1,26 @@
+---
+title: "Generar una clave SSH para el servidor RPATIC"
+sidebarTitle: "Generar clave SSH"
+description: "Genera un par de claves SSH ed25519 desde tu equipo local para acceder al servidor RPATIC. La clave privada nunca debe compartirse con nadie."
+---
+
+Para acceder al servidor mediante SSH, cada usuario debe contar con su propio par de claves SSH.
+
+Desde el equipo local, ejecutar:
+
+```bash
+ssh-keygen -t ed25519 -C "tu_correo@example.com"
+```
+
+Durante el proceso se solicitará la ubicación donde se almacenará la clave y, opcionalmente, una contraseña (`passphrase`) para protegerla.
+
+Por defecto, se generarán los siguientes archivos:
+
+```text
+id_ed25519       → clave privada
+id_ed25519.pub   → clave pública
+```
+
+<Warning>
+  La **clave privada nunca debe compartirse**. La clave que se debe colocar en el servidor es únicamente la **clave pública** (`.pub`).
+</Warning>

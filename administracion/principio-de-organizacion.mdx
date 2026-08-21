@@ -1,0 +1,20 @@
+---
+title: "Principio de organización del servidor RPATIC"
+sidebarTitle: "Principio de organización"
+description: "Separación clara de responsabilidades entre código, reverse proxy, procesos, contenedores, monitorización, certificados y ATLAS."
+---
+
+La infraestructura del servidor debe mantener una separación clara de responsabilidades.
+
+| Componente | Ubicación / Herramienta | Responsabilidad |
+| --- | --- | --- |
+| Código | `~/Documentos/projects` | Código fuente de los proyectos |
+| Reverse Proxy | Nginx | Exposición de aplicaciones |
+| Procesos | PM2 | Ejecución y administración de aplicaciones |
+| Contenedores | Podman | Ejecución de servicios en contenedores |
+| Monitorización PM2 | PM2 View | Gestión y monitorización de procesos |
+| Monitorización Podman | Containers View | Gestión y alertas de contenedores |
+| Certificados | `~/ssl` | HTTPS y TLS |
+| Plataforma | ATLAS | Nuevos desarrollos mediante arquitectura modular |
+
+Esta organización facilita la administración del servidor, el diagnóstico de incidentes y la incorporación de nuevos integrantes al equipo.

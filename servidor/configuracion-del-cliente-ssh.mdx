@@ -1,0 +1,63 @@
+---
+title: "Configuración del cliente SSH en el PC"
+sidebarTitle: "Cliente SSH"
+description: "Configura el archivo ~/.ssh/config en tu PC de desarrollo para conectarte al servidor RPATIC con un simple ssh rpatic usando la clave privada."
+---
+
+<Warning>
+  **IMPORTANTE**: antes de continuar con el proceso y evitarte dolores de cabeza creyendo que configuraste algo mal, debes pedirle al encargado de **infraestructura** que habilite tu IP, para que pueda conectarse al servidor.
+</Warning>
+
+Una vez agregada la clave pública en el servidor, debemos configurar el SSH en el PC de desarrollo.
+
+<Steps>
+  <Step title="Ingresar a la carpeta .ssh del usuario">
+    ```text
+    C:\Users\tu.usuario\.ssh
+    ```
+  </Step>
+  <Step title="Crear o editar el archivo config">
+    Si el archivo no existe, simplemente créalo con el nombre `config`, **sin extensión `.txt`**.
+  </Step>
+  <Step title="Agregar la siguiente configuración">
+    ```ssh-config
+    Host rpatic
+        HostName 172.16.1.127
+        User rpatic
+        Port 225
+        IdentityFile C:\Users\tu.usuario\.ssh\id_ed25519
+    ```
+  </Step>
+</Steps>
+
+## Descripción de la configuración
+
+- **Host:** alias utilizado para identificar el servidor. En este caso, `rpatic`.
+- **HostName:** dirección IP del servidor al que se realizará la conexión.
+- **User:** usuario con el que se realizará la conexión SSH.
+- **Port:** puerto utilizado por el servicio SSH. En este caso, `225`.
+- **IdentityFile:** ruta de la **clave privada** que se utilizará para autenticarse.
+
+<Warning>
+  En `IdentityFile` se debe indicar la **clave privada** (`id_ed25519`) y **no** la clave pública (`id_ed25519.pub`). La clave privada debe permanecer únicamente en el equipo del usuario.
+</Warning>
+
+Una vez configurado el archivo `config`, ya no será necesario especificar manualmente la IP, el usuario, el puerto ni la clave privada.
+
+La conexión podrá realizarse simplemente ejecutando:
+
+```bash
+ssh rpatic
+```
+
+SSH utilizará automáticamente la configuración definida en el archivo `config`:
+
+```ssh-config
+Host         → rpatic
+HostName     → 172.16.1.127
+User         → rpatic
+Port         → 225
+IdentityFile → id_ed25519
+```
+
+**Resultado:** al ejecutar `ssh rpatic`, el cliente SSH sabrá automáticamente a qué servidor conectarse, con qué usuario, mediante qué puerto y qué clave privada utilizar.

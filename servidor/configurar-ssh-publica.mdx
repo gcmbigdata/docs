@@ -1,0 +1,67 @@
+---
+title: "Configurar la clave SSH pública en el servidor"
+sidebarTitle: "Configurar SSH pública"
+description: "Entrega la clave pública y agrégala al archivo authorized_keys del servidor RPATIC. Cada clave debe quedar en una línea independiente."
+---
+
+<Info>
+  Durante todo el proceso se debe compartir únicamente la **clave pública** (`.pub`). **Nunca se debe compartir la clave privada**, por ejemplo `id_ed25519`.
+</Info>
+
+<Steps>
+  <Step title="Ubicar el archivo .pub">
+    Una vez generada la clave SSH, ubica el archivo `.pub`. Normalmente se encuentra en:
+
+    ```text
+    C:\Users\tu_usuario\.ssh\
+    ```
+
+    o en la ruta donde ejecutaste `ssh-keygen`.
+
+    Para visualizar el contenido de la clave pública desde PowerShell:
+
+    ```powershell
+    Get-Content .\id_ed25519.pub
+    ```
+
+    Copia **todo el contenido de la línea**, que normalmente comienza con `ssh-ed25519`.
+  </Step>
+  <Step title="Entregar la clave pública">
+    Entrega esta clave pública a un compañero del área de Big Data que ya tenga acceso al servidor. Si nadie del equipo tiene acceso, se debe solicitar al encargado de **Infraestructura y Seguridad**.
+  </Step>
+  <Step title="Ingresar a la carpeta .ssh del servidor">
+    La persona que tenga acceso al servidor debe ingresar a la carpeta `.ssh` del usuario correspondiente:
+
+    ```bash
+    cd ~/.ssh
+    ```
+  </Step>
+  <Step title="Editar el archivo authorized_keys">
+    Abrir o editar el archivo `authorized_keys`:
+
+    ```bash
+    nano authorized_keys
+    ```
+  </Step>
+  <Step title="Agregar la clave pública">
+    Agregar al final del archivo el contenido completo de la clave pública que fue entregada.
+
+    <Warning>
+      Cada clave pública debe quedar en una **línea independiente**.
+    </Warning>
+  </Step>
+  <Step title="Guardar los cambios en nano">
+    - `Ctrl + X`
+    - Confirmar con `Y`
+    - Presionar `Enter`
+  </Step>
+  <Step title="Configurar el SSH en el PC de desarrollo">
+    Una vez agregada la clave pública en el servidor, podemos pasar a configurar el SSH en el PC de desarrollo. Para esto, se debe configurar el archivo `config` dentro de:
+
+    ```text
+    C:\Users\tu_usuario\.ssh\
+    ```
+
+    El siguiente paso es cómo crear y configurar ese `config` para conectarse al servidor de forma sencilla, por ejemplo usando `ssh nombre-servidor`.
+  </Step>
+</Steps>

@@ -1,0 +1,43 @@
+---
+title: "Relación entre proyectos y configuración Nginx"
+sidebarTitle: "Proyectos y Nginx"
+description: "El código de cada proyecto y su configuración Nginx viven en directorios separados, lo que permite exponer aplicaciones sin tocar el código."
+---
+
+Existe una separación entre el código de las aplicaciones y la configuración utilizada para exponerlas externamente.
+
+## Código de los proyectos
+
+```text
+/home/rpatic/Documentos/projects/<proyecto>
+```
+
+## Configuración de Nginx
+
+```text
+/etc/nginx/conf.d/apps/<proyecto>.conf
+```
+
+## Relación general
+
+```text
+Código del proyecto
+        ↓
+~/Documentos/projects/<proyecto>
+        ↓
+Proceso de aplicación
+        ↓
+PM2 / Podman
+        ↓
+Nginx
+        ↓
+HTTPS
+        ↓
+engine.clinicamedicos.com
+```
+
+Esta separación permite administrar la configuración de acceso externo sin modificar directamente el código de la aplicación.
+
+<Info>
+  Esta estructura se explica porque así se hacía anteriormente para cada proyecto nuevo, pero con **ATLAS** ya todo eso cambió: cada proyecto nuevo simplemente es un nuevo módulo de **ATLAS**, por lo tanto ya no es necesario crear nuevos archivos `.conf` (por el momento).
+</Info>

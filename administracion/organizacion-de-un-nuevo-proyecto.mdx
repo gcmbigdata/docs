@@ -1,0 +1,41 @@
+---
+title: "Organización de un nuevo proyecto independiente"
+sidebarTitle: "Nuevo proyecto"
+description: "Ubicaciones estándar para el código, Nginx, certificados, procesos y contenedores cuando un proyecto no se incorpora como módulo de ATLAS."
+---
+
+Al incorporar un nuevo proyecto al servidor se debe mantener una separación clara entre los diferentes componentes.
+
+<Info>
+  Recuerda que lo ideal es que sea un nuevo módulo de **ATLAS**. Si se requiere que sea un proyecto individual, este es el paso a seguir en base a organización.
+</Info>
+
+## Código
+
+```text
+~/Documentos/projects/<proyecto>
+```
+
+## Configuración Nginx
+
+```text
+/etc/nginx/conf.d/apps/<proyecto>.conf
+```
+
+## Certificados
+
+```text
+/home/rpatic/ssl
+```
+
+## Procesos
+
+- PM2, cuando corresponda.
+
+## Contenedores
+
+- Podman, cuando corresponda.
+
+## Monitorización
+
+- PM2 View y Containers View, según corresponda.

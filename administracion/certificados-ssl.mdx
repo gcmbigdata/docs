@@ -1,0 +1,40 @@
+---
+title: "Certificados SSL del servidor RPATIC"
+sidebarTitle: "Certificados SSL"
+description: "Los certificados fullchain.crt y tls.key en /home/rpatic/ssl habilitan HTTPS para engine.clinicamedicos.com. La clave privada es sensible."
+---
+
+Los certificados utilizados por Nginx se encuentran en:
+
+```text
+/home/rpatic/ssl
+```
+
+Actualmente, la configuración principal de Nginx utiliza:
+
+```text
+/home/rpatic/ssl/fullchain.crt
+/home/rpatic/ssl/tls.key
+```
+
+Estos archivos permiten establecer conexiones HTTPS para:
+
+```text
+https://engine.clinicamedicos.com
+```
+
+<Warning>
+  La clave privada `tls.key` debe tratarse como información sensible.
+
+  **No debe:**
+
+  - Compartirse con otros usuarios.
+  - Subirse a repositorios.
+  - Incluirse en proyectos.
+  - Publicarse.
+  - Enviarse mediante canales no autorizados.
+</Warning>
+
+<Info>
+  Todos estos archivos están alojados en el repositorio institucional, para que no tengas problemas en caso de que se reinicie el servidor y tengas que configurar todo desde cero. Puedes visitar el siguiente enlace: [ssl en GitHub](https://github.com/bigdata-gcm/ssl).
+</Info>

@@ -1,0 +1,35 @@
+---
+title: "Realizar la conexión SSH al servidor RPATIC"
+sidebarTitle: "Realizar conexión"
+description: "Prueba la conexión al servidor RPATIC con ssh rpatic. La primera vez se pedirá validar el fingerprint del host antes de autenticar por clave."
+---
+
+Prueba de conexión al servidor.
+
+Una vez que el administrador haya agregado la clave pública al servidor y hayas realizado la configuración del cliente SSH, se puede probar la conexión ejecutando:
+
+```bash
+ssh rpatic
+```
+
+SSH utilizará automáticamente la configuración definida en el archivo:
+
+```text
+C:\Users\tu.usuario\.ssh\config
+```
+
+Por lo tanto, utilizará la siguiente configuración:
+
+```ssh-config
+Host:          rpatic
+Servidor:      172.16.1.127
+Usuario:       rpatic
+Puerto:        225
+Clave privada: C:\Users\tu.usuario\.ssh\id_ed25519
+```
+
+Si la configuración es correcta y la clave pública fue agregada correctamente al servidor, **SSH debería autenticar al usuario sin solicitar la contraseña del usuario del servidor**.
+
+<Note>
+  La primera vez que te conectes al servidor, SSH puede solicitar confirmar la autenticidad del host mostrando su `fingerprint`. Si reconoces y validas el servidor, puedes aceptar la conexión.
+</Note>

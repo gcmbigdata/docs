@@ -1,0 +1,53 @@
+---
+title: "Configuración individual de aplicaciones en Nginx"
+sidebarTitle: "Config por aplicación"
+description: "Cada aplicación tiene su archivo .conf en /etc/nginx/conf.d/apps con la configuración de reverse proxy para exponerse mediante Nginx."
+---
+
+Las configuraciones específicas de las aplicaciones se encuentran en:
+
+```text
+/etc/nginx/conf.d/apps
+```
+
+La estructura actual es:
+
+```text
+apps/
+├── agendamiento.conf
+├── api-export-excel-reportes.conf
+├── api-giro-cama.conf
+├── api-patologia.conf
+├── api-ruta-oncologica.conf
+├── atlas.conf
+├── cartera-dashboard-assigna.conf
+├── container-view.conf
+├── control-venopunciones.conf
+├── cumplimiento.conf
+├── estudios-errados.conf
+├── facturacion-por-servicio.conf
+├── facturar-sin-egreso.conf
+├── getion-autorizaciones.conf
+├── junta-medica.conf
+├── paciente-trazador.conf
+├── pm2-view.conf
+├── reportes-estudios.conf
+├── reportes.conf
+├── ruta-oncologica.conf
+├── seguridad-paciente.conf
+└── smart-lab.conf
+```
+
+Cada archivo contiene normalmente la configuración de **reverse proxy** correspondiente a una aplicación o servicio.
+
+Por ejemplo:
+
+```text
+/etc/nginx/conf.d/apps/pm2-view.conf
+```
+
+contiene la configuración necesaria para publicar **PM2 View** mediante Nginx.
+
+<Info>
+  Todos los archivos de `conf.d/apps` están alojados en el repositorio institucional de GitHub. Puedes verlos en: [nginx .conf en GitHub](https://github.com/bigdata-gcm/archivos-.conf-nginx).
+</Info>

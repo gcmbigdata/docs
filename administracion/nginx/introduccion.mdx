@@ -1,0 +1,91 @@
+---
+title: "Configuración de Nginx en el servidor RPATIC"
+sidebarTitle: "Nginx"
+description: "Nginx expone las aplicaciones del servidor RPATIC vía HTTPS. El archivo rpatic.conf define TLS, cabeceras de seguridad, gzip y las apps incluidas."
+---
+
+Nginx es el servidor web que expone las aplicaciones del ecosistema Big Data como reverse proxy con HTTPS.
+
+## Configuración de Nginx
+
+La configuración de Nginx se encuentra en:
+
+```text
+/etc/nginx/conf.d
+```
+
+Actualmente contiene:
+
+```text
+/etc/nginx/conf.d
+├── apps
+└── rpatic.conf
+```
+
+El archivo principal es:
+
+```text
+/etc/nginx/conf.d/rpatic.conf
+```
+
+Este archivo contiene la configuración general del servidor web, incluyendo:
+
+- Redirección HTTP a HTTPS.
+- Configuración TLS.
+- Certificados SSL.
+- Cabeceras de seguridad.
+- Content Security Policy.
+- Compresión GZIP.
+- Inclusión de las configuraciones individuales de las aplicaciones.
+
+Este es el archivo `rpatic.conf` con la configuración actual. También puedes verla en GitHub: [rpatic.conf en GitHub](https://github.com/bigdata-gcm/archivos-.conf-nginx/blob/main/rpatic.conf).
+
+<Accordion title="rpatic.conf">
+  ```nginx
+  rpatic@RPATIC:/etc/nginx/conf.d$ cat rpatic.conf
+  # 🔴 HTTP → HTTPS
+  server {
+      listen 80 default_server;
+      server_name engine.clinicamedicos.com;
+      return 301 https://$host$request_uri;
+  }
+  
+  # 🟢 HTTPS
+  server {
+      listen 443 ssl default_server;
+      listen [::]:443 ssl default_server;
+      server_name engine.clinicamedicos.com;
+  
+      ssl_certificate /home/rpatic/ssl/fullchain.crt;
+      ssl_certificate_key /home/rpatic/ssl/tls.key;
+  
+      ssl_protocols TLSv1.2 TLSv1.3;
+      ssl_prefer_server_ciphers on;
+  
+      # Seguridad
+      add_header X-Content-Type-Options "nosniff" always;
+      add_header Referrer-Policy "strict-origin-when-cross-origin" always;
+      add_header Permissions-Policy "geolocation=(), microphone=(), camera=()" always;
+      add_header Strict-Transport-Security "max-age=31536000; includeSubDomains; preload" always;
+  
+     add_header Content-Security-Policy "default-src 'self'; script-src 'self' 'unsafe-inline' https://cdnjs.cloudflare.com https://cdn.jsdelivr.net; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' data: https://fonts.gstatic.com; img-src 'self' data: https:; connect-src 'self' https://engine.clinicamedicos.com https://*.sentry.io; frame-src 'self' https://app.powerbi.com; frame-ancestors 'self' https://*.grupoclinicamedicos.com; base-uri 'self'; form-action 'self';" always;
+  
+      # Compresión
+      gzip on;
+      gzip_vary on;
+      gzip_min_length 1024;
+      gzip_comp_level 6;
+      gzip_types
+          text/plain
+          text/css
+          text/javascript
+          application/javascript
+          application/json
+          application/xml
+          image/svg+xml
+          font/woff2;
+  
+      include /etc/nginx/conf.d/apps/*.conf;
+  }
+  ```
+</Accordion>

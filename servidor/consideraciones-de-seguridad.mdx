@@ -1,0 +1,61 @@
+---
+title: "Consideraciones de seguridad de las claves SSH"
+sidebarTitle: "Seguridad"
+description: "Buenas prácticas para proteger las claves SSH: la clave privada nunca se comparte y cada integrante debe usar su propio par de claves."
+---
+
+Seguridad de las claves SSH.
+
+## Clave privada
+
+El archivo:
+
+```text
+C:\Users\tu.usuario\.ssh\id_ed25519
+```
+
+contiene la **clave privada** y debe considerarse información sensible. Debe permanecer únicamente en el equipo del usuario.
+
+**Nunca debe:**
+
+- Compartirse con otros usuarios.
+- Subirse a GitHub u otros repositorios.
+- Enviarse por correo electrónico o aplicaciones de mensajería.
+- Incluirse dentro de proyectos o código fuente.
+- Publicarse en repositorios.
+- Entregarse al administrador del servidor.
+
+<Warning>
+  Si otra persona obtiene la clave privada y además tiene acceso al servidor correspondiente, podría autenticarse como el usuario propietario de esa clave.
+</Warning>
+
+## Clave pública
+
+El archivo:
+
+```text
+C:\Users\tu.usuario\.ssh\id_ed25519.pub
+```
+
+contiene la **clave pública** y es el archivo que debe proporcionarse al administrador o encargado de infraestructura para habilitar el acceso al servidor.
+
+La clave pública se puede compartir de forma controlada, ya que por sí sola **no permite autenticarse como el usuario**.
+
+## Una clave por usuario
+
+Cada integrante debe utilizar su **propio par de claves SSH**:
+
+```text
+id_ed25519       → Clave privada
+id_ed25519.pub   → Clave pública
+```
+
+No se recomienda compartir una misma clave privada entre diferentes usuarios, ya que esto dificulta:
+
+- **La trazabilidad:** no sería posible identificar fácilmente qué usuario realizó una conexión.
+- **La revocación:** retirar el acceso de una sola persona requeriría reemplazar o modificar la clave compartida.
+- **La seguridad:** una clave privada comprometida podría afectar a todos los usuarios que la comparten.
+
+<Info>
+  **En resumen:** un usuario → un par de claves SSH → una clave pública registrada en el servidor.
+</Info>
