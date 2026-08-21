@@ -1,0 +1,29 @@
+---
+title: "Arquitectura actual del ecosistema Big Data"
+sidebarTitle: "Arquitectura actual"
+description: "Vista simplificada del ecosistema Big Data: proyectos existentes gestionados con PM2 y Podman, y nuevos desarrollos incorporados dentro de ATLAS."
+---
+
+De forma simplificada, el ecosistema puede entenderse en dos grandes grupos: los proyectos existentes y los nuevos desarrollos, junto con la capa de monitorización y operación.
+
+```text
+ECOSISTEMA BIG DATA
+│
+├── Proyectos existentes
+│   │
+│   └── Atlas
+│       │
+│       ├── PM2
+│       │   └── PM2 View
+│       │
+│       └── Podman
+│           └── Containers View
+│
+└── Nuevos desarrollos
+    │
+    ├── Monolito
+    │
+    └── Modular
+│
+└── Monitorización y operación
+```

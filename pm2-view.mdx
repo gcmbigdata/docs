@@ -1,0 +1,214 @@
+---
+title: "PM2 View: administrar PM2 desde la interfaz web"
+sidebarTitle: "PM2 View"
+description: "PM2 View centraliza la visualización, logs, actualizaciones y persistencia de los procesos PM2 del servidor RPATIC desde una interfaz gráfica."
+---
+
+Para facilitar la administración de los procesos PM2 utilizamos **PM2 View**, una herramienta open source desarrollada para proporcionar una interfaz gráfica de administración.
+
+<CardGroup cols={2}>
+  <Card title="Repositorio" icon="github" href="https://github.com/programadorisgod/pm2-view">
+    programadorisgod/pm2-view
+  </Card>
+
+  <Card title="Producción" icon="globe" href="https://engine.clinicamedicos.com/pm2/">
+    engine.clinicamedicos.com/pm2
+  </Card>
+</CardGroup>
+
+## Pasos para desarrollar y desplegar una nueva funcionalidad
+
+<Steps>
+  <Step title="Crear y preparar el repositorio">
+    Crea un **fork** del repositorio de `pm2-view` y súbelo al repositorio de la organización de **Big Data**, o al repositorio de la organización que corresponda para la funcionalidad que vas a desarrollar.
+
+    El objetivo es que la nueva funcionalidad quede asociada al repositorio de la organización y pueda ser utilizada posteriormente por el servidor de RPATIC.
+  </Step>
+  <Step title="Configurar las variables de entorno">
+    Agrega en tu archivo `.env` las variables de entorno que necesite la nueva funcionalidad.
+
+    Estas variables serán gestionadas mediante **INFISICAL**. No te preocupes si todavía no conoces INFISICAL; más adelante en esta documentación se explica **qué es, cómo funciona y cómo utilizarlo**.
+
+    <Warning>
+      No debes subir al repositorio valores sensibles o secretos directamente dentro del archivo `.env`. Las variables y secretos correspondientes deben gestionarse mediante INFISICAL.
+    </Warning>
+  </Step>
+  <Step title="Crear una rama para la nueva funcionalidad">
+    Antes de comenzar el desarrollo, crea una rama específica de acuerdo con la funcionalidad que vas a realizar.
+
+    ```bash
+    git checkout -b feature/nombre-de-la-funcionalidad
+    ```
+
+    Esto permite mantener aislados los cambios de la nueva funcionalidad y facilita posteriormente su revisión e integración.
+  </Step>
+  <Step title="Desarrollar la funcionalidad">
+    El desarrollo de la nueva funcionalidad se realiza en tu **PC de desarrollo local**, no directamente en el servidor de RPATIC.
+
+    Realiza los cambios necesarios, prueba la funcionalidad y asegúrate de que todo funcione correctamente en tu entorno local.
+
+    Una vez finalizados los cambios, realiza los commits correspondientes:
+
+    ```bash
+    git add .
+    git commit -m "feat: descripción de la funcionalidad"
+    ```
+  </Step>
+  <Step title="Configurar el repositorio en el servidor RPATIC">
+    En el servidor de **RPATIC** (más adelante se explicará cómo conectarse) debes dirigirte al directorio del proyecto:
+
+    ```bash
+    cd ~/Documents/projects/pm2-view
+    ```
+
+    La **primera vez** que se configure el repositorio para este flujo, debes hacer que el `origin` del servidor apunte al fork o repositorio de la organización donde se publicarán los cambios.
+
+    Si el repositorio ya tiene configurado un `origin`, **no debes agregar un nuevo remote**. Debes reemplazar la URL del `origin` existente:
+
+    ```bash
+    git remote set-url origin [URL-del-fork-o-repositorio]
+    ```
+
+    Por ejemplo:
+
+    ```bash
+    git remote set-url origin https://github.com/usuario/pm2-view.git
+    ```
+
+    Puedes verificar que la configuración sea correcta con:
+
+    ```bash
+    git remote -v
+    ```
+
+    <Info>
+      Esta configuración se realiza en el servidor de RPATIC, pero el desarrollo y el `git push` se realizan desde tu **PC local**.
+    </Info>
+  </Step>
+  <Step title="Enviar los cambios al repositorio">
+    Desde tu PC de desarrollo, una vez que hayas terminado y commiteado la funcionalidad, envía la rama al repositorio:
+
+    ```bash
+    git push origin [nombre-de-la-rama]
+    ```
+
+    Por ejemplo:
+
+    ```bash
+    git push origin feature/nueva-funcionalidad
+    ```
+
+    A partir de este momento, los cambios estarán disponibles en el fork o repositorio de la organización.
+  </Step>
+  <Step title="Actualizar la aplicación desde PM2 View">
+    Una vez que hayas enviado tus cambios al repositorio, accede a la interfaz de **PM2 View**: [https://engine.clinicamedicos.com/pm2/](https://engine.clinicamedicos.com/pm2/)
+
+    Desde allí, haz clic en el botón **Update** del proyecto correspondiente.
+
+    El botón **Update** se encargará automáticamente de realizar en el servidor las operaciones necesarias para actualizar la aplicación:
+
+    ```bash
+    git pull
+    pnpm i
+    build
+    pm2 restart --update-env
+    ```
+
+    De esta manera, **no necesitas conectarte nuevamente al servidor para ejecutar estos comandos manualmente**.
+  </Step>
+  <Step title="Flujo resumido">
+    **Primera configuración:**
+
+    1. Crear un fork y subirlo al repositorio de la organización correspondiente.
+    2. Configurar las variables de entorno y gestionarlas mediante INFISICAL.
+    3. Crear una rama para la nueva funcionalidad.
+    4. Desarrollar y probar la funcionalidad en tu PC local.
+    5. Configurar el `origin` del proyecto en el servidor RPATIC para que apunte al repositorio correspondiente.
+
+    **Para cada nueva funcionalidad:**
+
+    1. Crear una rama.
+    2. Desarrollar y probar los cambios en el PC local.
+    3. Hacer commit de los cambios.
+    4. Hacer `git push origin [rama]`.
+    5. Ir a PM2 View.
+    6. Hacer clic en **Update**.
+    7. PM2 View ejecutará automáticamente `git pull`, `pnpm i`, `build` y `pm2 restart --update-env`.
+
+    <Note>
+      El paso de configuración del `origin` en RPATIC solo es necesario cuando se configura por primera vez o cuando se necesita cambiar el repositorio de destino. Si ya está apuntando al repositorio correcto, no es necesario modificarlo nuevamente.
+    </Note>
+  </Step>
+</Steps>
+
+## ¿Qué permite hacer PM2 View?
+
+PM2 View centraliza varias tareas operativas que normalmente realizaríamos directamente mediante la CLI de PM2.
+
+### Visualización de proyectos
+
+Permite consultar los proyectos actualmente administrados por PM2 y conocer su estado. Esto facilita identificar rápidamente:
+
+- Procesos activos.
+- Procesos detenidos.
+- Procesos con problemas.
+- Estado general de las aplicaciones.
+
+### Logs
+
+Permite consultar los logs de los procesos sin necesidad de acceder constantemente a la terminal. Esto resulta especialmente útil durante:
+
+- Despliegues.
+- Diagnóstico de errores.
+- Validación de cambios.
+- Monitorización de aplicaciones.
+
+### Actualización desde GitHub
+
+PM2 View permite gestionar la actualización de los proyectos cuando existen nuevos cambios disponibles en sus repositorios.
+
+El flujo habitual consiste en:
+
+1. Realizar cambios en el repositorio.
+2. Subir los cambios a GitHub.
+3. Actualizar el proyecto en el servidor.
+4. Instalar cambios/dependencias si corresponde.
+5. Reiniciar el proceso.
+6. Revisar los logs.
+7. Validar que la aplicación se encuentre funcionando correctamente.
+
+### PM2 Save
+
+Permite ejecutar la persistencia del estado actual de PM2.
+
+<Warning>
+  Es **SUPER IMPORTANTE que lo realices cada que agregues un proyecto**, ya que este botón te permitirá guardar todos los procesos que se están ejecutando actualmente en el servidor a través de PM2.
+</Warning>
+
+Conceptualmente:
+
+```bash
+pm2 save
+```
+
+Esto permite guardar la lista actual de procesos para que pueda ser restaurada posteriormente.
+
+### PM2 Startup
+
+PM2 también permite configurar el arranque automático de los procesos cuando el servidor inicia.
+
+Conceptualmente:
+
+```bash
+pm2 startup
+```
+
+El objetivo es que, después de un reinicio del servidor, los procesos previamente registrados puedan volver a levantarse automáticamente.
+
+<Warning>
+  Una vez realizas el paso de `pm2 save`, realizas el paso de `pm2 startup`. De lo contrario todo el trabajo será en vano **y tendrás que levantarlos manualmente en caso de reinicio**.
+</Warning>
+
+### Métricas del servidor
+
+PM2 View también proporciona información relacionada con el estado de ejecución de las aplicaciones y del servidor. Esto permite tener una visión rápida del consumo de recursos y detectar comportamientos anómalos.

@@ -1,0 +1,54 @@
+---
+title: "Containers View: monitorizar contenedores Podman"
+sidebarTitle: "Containers View"
+description: "Containers View visualiza el estado de los contenedores Podman y configura alertas cuando una dependencia crítica deja de estar disponible."
+---
+
+Para facilitar la administración y monitorización de los contenedores utilizamos **Containers View**.
+
+<CardGroup cols={2}>
+  <Card title="Repositorio" icon="github" href="https://github.com/programadorisgod/containers-view">
+    programadorisgod/containers-view
+  </Card>
+
+  <Card title="Producción" icon="globe" href="https://engine.clinicamedicos.com/containers/">
+    engine.clinicamedicos.com/containers
+  </Card>
+</CardGroup>
+
+Esta herramienta permite visualizar los contenedores administrados mediante Podman y proporciona mecanismos de monitorización y alertas.
+
+## ¿Por qué es importante?
+
+Algunos contenedores son dependencias críticas de determinadas aplicaciones.
+
+Por ejemplo:
+
+```text
+Aplicación
+│
+├── PM2
+│   └── Gestiona el proceso y mantiene la aplicación en ejecución
+│
+└── Contenedor Podman
+    └── Proporciona el servicio requerido por la aplicación
+```
+
+Si el contenedor deja de estar disponible, la aplicación puede dejar de funcionar correctamente aunque su proceso PM2 continúe activo.
+
+<Info>
+  Por esta razón, **no basta con monitorizar únicamente PM2**. También debemos conocer el estado de los contenedores.
+</Info>
+
+## Alertas
+
+Containers View permite establecer mecanismos de alerta para detectar cuándo un contenedor crítico deja de estar disponible.
+
+Esto permite actuar rápidamente ante situaciones como:
+
+- Contenedor detenido.
+- Servicio que no inicia correctamente.
+- Reinicio inesperado.
+- Dependencia crítica fuera de servicio.
+
+El objetivo es reducir el tiempo entre la aparición del problema y su detección.

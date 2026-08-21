@@ -1,0 +1,28 @@
+---
+title: "Evolución de la arquitectura Big Data"
+sidebarTitle: "Evolución de la arquitectura"
+description: "Cómo funcionaba el ecosistema antes de ATLAS: proyectos independientes con su propio entorno, configuración, dependencias y documentación."
+---
+
+Explicación de lo que hacíamos al inicio, cuando no teníamos una arquitectura definida.
+
+## Proyectos independientes
+
+Antes de la creación de ATLAS, cada desarrollo se manejaba como un proyecto independiente.
+
+Esto implicaba que cada aplicación podía tener:
+
+- Su propio repositorio.
+- Su propio proceso de ejecución.
+- Su configuración.
+- Sus variables de entorno.
+- Sus dependencias.
+- Sus servicios auxiliares.
+- Sus contenedores Podman, cuando fueran necesarios.
+- Su propia documentación.
+
+Por esta razón, **cada proyecto debía contar con su propio ecosistema operativo y documentación**.
+
+<Warning>
+  Una aplicación no debe asumir que otro proyecto tiene configurado su entorno o sus dependencias.
+</Warning>

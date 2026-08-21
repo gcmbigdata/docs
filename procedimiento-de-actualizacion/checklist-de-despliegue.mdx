@@ -1,0 +1,44 @@
+---
+title: "Checklist de despliegue de proyectos Big Data"
+sidebarTitle: "Checklist de despliegue"
+description: "Lista de verificación de código, configuración, PM2, Podman y validación funcional antes de considerar finalizado un despliegue en RPATIC."
+---
+
+Antes de considerar finalizado un despliegue, verificar los siguientes puntos.
+
+## Código
+
+- [ ] Cambios disponibles en el repositorio correcto.
+- [ ] Rama correcta.
+- [ ] Dependencias actualizadas.
+- [ ] Build ejecutado correctamente.
+
+## Configuración
+
+- [ ] Variables de entorno correctas.
+- [ ] Configuración de producción validada.
+- [ ] Puertos disponibles.
+
+## PM2
+
+- [ ] Proceso iniciado.
+- [ ] Proceso en estado **online**.
+- [ ] Logs sin errores críticos.
+- [ ] Configuración persistida con `pm2 save`.
+
+## Podman
+
+Si aplica:
+
+- [ ] Contenedores iniciados.
+- [ ] Contenedores en estado correcto.
+- [ ] Volúmenes disponibles.
+- [ ] Dependencias accesibles.
+- [ ] Alertas configuradas.
+
+## Validación
+
+- [ ] API responde.
+- [ ] Frontend responde.
+- [ ] Funcionalidades críticas funcionan.
+- [ ] No existen errores críticos en logs.

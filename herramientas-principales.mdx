@@ -1,0 +1,56 @@
+---
+title: "Herramientas principales del ecosistema Big Data"
+sidebarTitle: "Herramientas"
+description: "ATLAS, PM2, PM2 View, Podman y Containers View: qué hace cada herramienta y cómo se relacionan dentro de la arquitectura Big Data."
+---
+
+El ecosistema de Big Data se apoya en diferentes herramientas, cada una con una responsabilidad específica dentro de la arquitectura. Estas herramientas permiten gestionar las aplicaciones, ejecutar servicios auxiliares, monitorizar los recursos y centralizar los nuevos desarrollos.
+
+| Componente | Función |
+| --- | --- |
+| **ATLAS** | Plataforma modular utilizada como base para el desarrollo y despliegue de nuevos proyectos. |
+| **PM2** | Gestión, ejecución y supervisión de los procesos de las aplicaciones. |
+| **PM2 View** | Interfaz para visualizar, administrar y monitorizar los procesos gestionados mediante PM2. |
+| **Podman** | Creación, ejecución y administración de contenedores para los servicios auxiliares. |
+| **Containers View** | Interfaz para visualizar y monitorizar los contenedores gestionados mediante Podman, incluyendo su estado y alertas. |
+
+## Repositorios y documentación
+
+Las herramientas cuentan con sus respectivos repositorios y documentación técnica:
+
+<CardGroup cols={2}>
+  <Card title="PM2 View" icon="github" href="https://github.com/programadorisgod/pm2-view">
+    programadorisgod/pm2-view
+  </Card>
+
+  <Card title="Containers View" icon="github" href="https://github.com/programadorisgod/containers-view">
+    programadorisgod/containers-view
+  </Card>
+
+  <Card title="ATLAS" icon="book" href="https://engine.clinicamedicos.com/atlas/docs/introduccion/">
+    Documentación oficial de ATLAS
+  </Card>
+</CardGroup>
+
+## Relación entre las herramientas
+
+De forma simplificada, la relación entre los principales componentes puede entenderse así:
+
+```text
+                    ECOSISTEMA BIG DATA
+                            │
+              ┌─────────────┴─────────────┐
+              │                           │
+        Aplicaciones              Servicios auxiliares
+              │                           │
+             PM2                       Podman
+              │                           │
+         PM2 View                 Containers View
+              │                           │
+              └─────────────┬─────────────┘
+                            │
+                     Monitorización
+                      y operación
+```
+
+En este modelo, **PM2 y Podman cumplen funciones complementarias**: PM2 se encarga de la gestión de los procesos de las aplicaciones, mientras que Podman proporciona el entorno de ejecución para los servicios auxiliares. Por su parte, **PM2 View y Containers View** permiten centralizar la visualización y monitorización de cada entorno.

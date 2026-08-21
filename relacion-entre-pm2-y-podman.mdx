@@ -1,0 +1,63 @@
+---
+title: "Relación entre PM2 y Podman en el ecosistema"
+sidebarTitle: "PM2 y Podman"
+description: "PM2 gestiona los procesos de las aplicaciones y Podman ejecuta los contenedores auxiliares. Ambas herramientas son complementarias, no equivalentes."
+---
+
+Es importante entender que **PM2 y Podman no cumplen la misma función ni son herramientas equivalentes**. Cada una opera en una capa diferente de la infraestructura y se encarga de administrar un componente distinto.
+
+En términos generales:
+
+- **PM2** se encarga de gestionar los procesos de la aplicación.
+- **Podman** se encarga de ejecutar y administrar los contenedores que proporcionan servicios requeridos por la aplicación.
+
+Por lo tanto, **ambas herramientas pueden trabajar de manera complementaria** dentro del mismo entorno.
+
+| Herramienta | Responsabilidad |
+| --- | --- |
+| **PM2** | Gestionar, supervisar y mantener en ejecución los procesos de la aplicación. |
+| **PM2 View** | Visualizar y monitorizar las aplicaciones administradas por PM2. |
+| **Podman** | Crear, ejecutar y administrar los contenedores utilizados por los servicios auxiliares. |
+| **Containers View** | Visualizar y monitorizar los contenedores gestionados mediante Podman. |
+
+## Relación dentro del entorno
+
+La arquitectura puede entenderse de la siguiente manera:
+
+```text
+Aplicación
+│
+├── PM2
+│   └── Gestiona los procesos de la aplicación
+│
+└── Servicios requeridos
+    └── Ejecutados dentro de contenedores Podman
+```
+
+De esta forma, **PM2 administra la aplicación**, mientras que **Podman proporciona el entorno de ejecución para los servicios auxiliares que la aplicación necesita**. No existe una relación de reemplazo entre ambas herramientas; cada una cumple una función específica dentro de la arquitectura.
+
+## ATLAS: centralizar nuevos desarrollos mediante una arquitectura modular
+
+La arquitectura puede representarse de la siguiente manera:
+
+```text
+SERVIDOR
+│
+├── PM2
+│   │
+│   ├── Aplicación
+│   │   ├── Proyecto A
+│   │   └── Proyecto B
+│   │
+│   └── PM2 View
+│       └── Visualización y monitorización de las aplicaciones
+│
+└── Podman
+    │
+    ├── Contenedores
+    │   ├── Servicio A
+    │   └── Servicio B
+    │
+    └── Containers View
+        └── Visualización y monitorización de los contenedores
+```

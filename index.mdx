@@ -1,20 +1,56 @@
 ---
-title: "Introduction"
-description: "Welcome to your project"
+title: "Introducción al flujo de Big Data"
+description: "Guía del ecosistema Big Data: cómo se organizan proyectos, procesos, contenedores y documentación en el servidor RPATIC."
+sidebarTitle: "Introducción"
 ---
 
-Write a short description of your product here. What it does, who it's for, and what they can accomplish with it.
+En esta documentación verás el flujo utilizado por el departamento de Big Data. La intención es explicarlo de la forma más clara, precisa y organizada posible.
 
-<Tip>
-  Ready to make this your own? Start by editing this page. Update your `docs.json` file to customize your site. Then fill out the [Quickstart](/quickstart) page.
-</Tip>
+<Warning>
+  Todas estas implementaciones están en el servidor **RPATIC**. No te preocupes, todo estará detallado paso a paso a medida que avances.
+</Warning>
 
-<Card title="Quickstart" icon="rocket" href="/quickstart">
-  This card links to the quickstart page in your project.
-</Card>
-<Card title="Components" icon="puzzle-piece" href="https://mintlify.com/docs/components">
-  Add cards, callouts, steps, tabs, and more to design and structure your pages.
-</Card>
-<Card title="Settings" icon="gear" href="https://mintlify.com/docs/organize/settings">
-  Set your site name, branding, and navigation in the `docs.json` file.
-</Card>
+El ecosistema de Big Data está compuesto por múltiples proyectos y servicios que se ejecutan y administran dentro del servidor de la organización.
+
+Anteriormente, cada proyecto se desplegaba y administraba de manera independiente, manteniendo su propio entorno de ejecución, configuración, variables de entorno, procesos y, cuando era necesario, contenedores.
+
+Como evolución de esta arquitectura surge **ATLAS**, nuestro proyecto monolito modular, cuyo objetivo es centralizar y organizar los nuevos desarrollos dentro de una única plataforma, reduciendo la fragmentación operativa y facilitando el mantenimiento a largo plazo.
+
+## Qué encontrarás en esta guía
+
+<CardGroup cols={2}>
+  <Card title="Evolución de la arquitectura" icon="timeline" href="/evolucion-de-la-arquitectura">
+    Cómo se gestionaban los proyectos antes de ATLAS.
+  </Card>
+
+  <Card title="ATLAS" icon="cube" href="/atlas">
+    El monolito modular donde viven los nuevos desarrollos.
+  </Card>
+
+  <Card title="PM2 y PM2 View" icon="gauge-high" href="/gestion-de-procesos-con-pm2">
+    Gestión de procesos y su interfaz de administración.
+  </Card>
+
+  <Card title="Podman y Containers View" icon="cubes" href="/proyectos-que-requieren-podman">
+    Contenedores para servicios auxiliares y su monitorización.
+  </Card>
+
+  <Card title="Documentación por proyecto" icon="file-lines" href="/documentacion-obligatoria-por-proyecto">
+    Qué debe documentar cada proyecto como mínimo.
+  </Card>
+
+  <Card title="Variables centralizadas" icon="key" href="/variables-de-entorno-centralizadas">
+    Manejo de secretos con Infisical.
+  </Card>
+</CardGroup>
+
+## Temas que cubre la guía
+
+- Cómo está organizado actualmente el ecosistema.
+- Cómo se gestionan los proyectos existentes.
+- El papel de **PM2**.
+- El uso de **PM2 View**.
+- La gestión de contenedores mediante **Podman**.
+- El papel de **Containers View**.
+- Cómo debe documentarse cada proyecto.
+- Qué consideraciones deben tener los nuevos integrantes del equipo.

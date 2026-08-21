@@ -1,0 +1,79 @@
+---
+title: "Procedimiento de actualización de proyectos"
+sidebarTitle: "Procedimiento"
+description: "Flujo controlado para actualizar proyectos estáticos o gestionados por PM2, incluyendo la validación posterior de la aplicación y sus contenedores."
+---
+
+Esto aplica para proyectos que tienen PM2 o son estáticos. Cuando se realiza un cambio en un proyecto independiente, debe seguirse un procedimiento controlado para garantizar que la nueva versión quede correctamente desplegada y validada.
+
+## Flujo general de actualización
+
+<Steps>
+  <Step title="Developer">
+    El desarrollador realiza los cambios correspondientes en el proyecto.
+  </Step>
+  <Step title="GitHub — Big Data">
+    Los cambios son enviados al repositorio correspondiente en GitHub.
+  </Step>
+  <Step title="Actualizar el proyecto en el servidor">
+    Se identifica el proyecto que debe actualizarse y se procede según su tipo de despliegue.
+
+    <Tabs>
+      <Tab title="Proyecto estático">
+        1. **Git pull**: traer el nuevo código al servidor.
+        2. **Instalar dependencias**: si el proyecto requiere nuevas dependencias, estas deben instalarse antes de generar la versión final.
+        3. **Build**: ejecutar el proceso de compilación correspondiente al proyecto.
+
+        Por ejemplo:
+
+        ```bash
+        pnpm build
+        ```
+
+        El comando exacto dependerá de la tecnología y configuración de cada proyecto.
+      </Tab>
+      <Tab title="Proyecto con PM2">
+        - Ingresar a PM2 View.
+        - Buscar el proyecto correspondiente.
+        - Seleccionar el proyecto.
+        - Hacer clic en el botón **Deploy**.
+        - PM2 View ejecutará el proceso de actualización definido para el proyecto.
+      </Tab>
+    </Tabs>
+  </Step>
+  <Step title="Validar la aplicación">
+    Finalmente, comprobar que la aplicación funciona correctamente. La validación debe incluir, cuando corresponda:
+
+    - Acceso mediante la URL correspondiente.
+    - Funcionalidades principales.
+    - Logs de la aplicación.
+    - Estado del proceso PM2.
+    - Estado de los contenedores Podman, si el proyecto los utiliza.
+    - Respuesta de las APIs.
+    - Ausencia de errores críticos.
+  </Step>
+</Steps>
+
+## Flujo resumido
+
+```text
+Developer
+   ↓
+GitHub — Big Data
+   ↓
+Actualizar proyecto
+   ↓
+¿Proyecto estático?
+```
+
+- **Sí** → Actualizar código → Instalar dependencias → Build → Validar aplicación
+- **No** → PM2 View → Seleccionar proyecto → Deploy → Validar aplicación
+
+<Warning>
+  Después de una actualización es importante verificar tanto:
+
+  1. El estado del proceso PM2.
+  2. El estado de los contenedores Podman, si existen.
+
+  Una aplicación puede aparecer como **online** en PM2 y aun así estar funcionalmente degradada debido a una dependencia externa caída.
+</Warning>

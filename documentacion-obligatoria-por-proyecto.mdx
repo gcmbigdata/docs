@@ -1,0 +1,108 @@
+---
+title: "Documentación obligatoria por proyecto"
+sidebarTitle: "Documentación obligatoria"
+description: "Elementos mínimos que cada proyecto Big Data debe documentar: descripción, repositorio, variables, dependencias, contenedores Podman y PM2."
+---
+
+Cada proyecto debe mantener una documentación actualizada. Como mínimo, debe documentar los siguientes elementos.
+
+## Descripción
+
+Explicar brevemente:
+
+- Qué problema resuelve.
+- Para qué se utiliza.
+- Quién consume la aplicación.
+- Qué componentes principales tiene.
+
+## Repositorio
+
+Indicar el repositorio correspondiente:
+
+```text
+Repository: https://github.com/...
+```
+
+También debe especificarse, cuando corresponda:
+
+- Rama utilizada en producción.
+- Rama de desarrollo.
+- Estrategia de despliegue.
+
+## Variables de entorno
+
+Documentar todas las variables necesarias y **crear un archivo `.env.example`**.
+
+Por ejemplo:
+
+```bash .env.example
+PORT=
+DATABASE_URL=
+API_URL=
+SECRET_KEY=
+```
+
+<Warning>
+  **Nunca deben almacenarse secretos reales dentro de la documentación o del repositorio.**
+</Warning>
+
+La documentación debe explicar:
+
+- Nombre de la variable.
+- Para qué se utiliza.
+- Si es obligatoria.
+- Ejemplo de formato cuando sea necesario.
+
+## Dependencias externas
+
+Debe especificarse cualquier dependencia que la aplicación necesite para funcionar. Por ejemplo:
+
+- PostgreSQL
+- Redis
+- Servicio externo X
+- Contenedor Y
+
+Para cada dependencia crítica debe explicarse cómo verificar que se encuentra disponible.
+
+## Contenedores Podman
+
+Si el proyecto utiliza Podman, documentar:
+
+- Nombre del contenedor.
+- Imagen utilizada.
+- Puerto.
+- Volúmenes.
+- Variables de entorno.
+- Dependencias.
+- Comando de ejecución.
+- Política de reinicio.
+- Cómo verificar su estado.
+- Qué ocurre si el contenedor se detiene.
+
+Ejemplo conceptual:
+
+```text
+Container: project-redis
+Image: redis:latest
+Port: 6379
+Required by: Project API
+```
+
+## PM2
+
+La documentación también debe indicar cómo se ejecuta el proyecto mediante PM2.
+
+Por ejemplo:
+
+```bash
+pm2 start ecosystem.config.js
+```
+
+Debe documentarse:
+
+- Nombre del proceso.
+- Archivo de configuración.
+- Comando de inicio.
+- Directorio de trabajo.
+- Variables relevantes.
+- Puerto utilizado.

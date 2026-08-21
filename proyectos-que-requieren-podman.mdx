@@ -1,0 +1,23 @@
+---
+title: "Proyectos que requieren contenedores Podman"
+sidebarTitle: "Proyectos con Podman"
+description: "Algunos proyectos combinan PM2 y Podman: PM2 administra la aplicación y Podman ejecuta los servicios auxiliares que la aplicación necesita."
+---
+
+No todas las aplicaciones funcionan únicamente mediante un proceso administrado por PM2. Algunos proyectos dependen de **contenedores Podman** para ejecutar servicios necesarios para su funcionamiento.
+
+Por ejemplo, una aplicación puede requerir servicios auxiliares que no deben ejecutarse directamente dentro del proceso principal de Node.js u otra aplicación.
+
+En estos casos, el proyecto tiene dos componentes operativos:
+
+```text
+├── Aplicación
+│   └── Gestionada y supervisada mediante PM2
+│
+└── Servicios auxiliares
+    └── Ejecutados y administrados mediante Podman
+```
+
+Esto significa que **PM2 y Podman cumplen responsabilidades diferentes**.
+
+PM2 administra el proceso de la aplicación, mientras que Podman administra los contenedores que la aplicación necesita.
