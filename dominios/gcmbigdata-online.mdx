@@ -1,0 +1,94 @@
+---
+title: "gcmbigdata.online: administración y renovación anual"
+sidebarTitle: "gcmbigdata.online"
+description: "Cómo acceder a Spaceship para administrar gcmbigdata.online, dónde están las credenciales en Infisical y cuándo y por cuánto se debe renovar el dominio."
+---
+
+Esta página es la referencia exclusiva del dominio propio de Big Data: `gcmbigdata.online`. Aquí queda documentado dónde se administra, dónde están las credenciales y cuándo hay que renovarlo para no perderlo.
+
+## Dónde se administra
+
+El dominio está registrado en **Spaceship**. Para gestionarlo:
+
+<Steps>
+  <Step title="Ir al panel de dominios de Spaceship">
+    Abre [https://www.spaceship.com/application/domain-list-application/](https://www.spaceship.com/application/domain-list-application/).
+  </Step>
+  <Step title="Iniciar sesión con las credenciales de Big Data">
+    Las credenciales (usuario, email y contraseña) están en **Infisical**, en la ruta:
+
+    ```text
+    Secrets Management → producción → /dominio_gcmbigdataonline_spaceship
+    ```
+
+    Ahí encontrarás el `usuario`, `email` y `password` para entrar a Spaceship.
+  </Step>
+  <Step title="Ver el dominio en el Domain Manager">
+    Una vez dentro, verás el dominio `gcmbigdata.online` listado en el Domain Manager, con su fecha de expiración, estado de auto-renovación y privacidad.
+  </Step>
+</Steps>
+
+## Vista del Domain Manager
+
+Así se ve el panel de Spaceship con el dominio activo:
+
+<Frame>
+  ![Domain Manager de Spaceship mostrando gcmbigdata.online con fecha de expiración Aug 19, 2027 y auto-renew activado.](/images/spaceship-domain-manager.png)
+</Frame>
+
+## Renovación anual
+
+<Warning>
+  Este dominio se renueva **una vez al año**. Si se deja vencer, hay que volver a comprarlo (posiblemente con otro nombre si alguien lo toma) y repetir toda la configuración con Cloudflare desde cero.
+</Warning>
+
+<Danger>
+  **Próxima renovación:** `Aug 19, 2027` **Costo de renovación:** `COP 66,422.14`
+</Danger>
+
+Para no repetir todo el proceso de configuración que se explica en [Compra y configuración](/dominios/compra-y-configuracion), la regla es simple: **antes de la fecha de renovación, pagar el año siguiente desde Spaceship**.
+
+<Tip>
+  El auto-renew está actualmente en **On**, pero eso depende de que el método de pago siga vigente. Un mes antes de la fecha de renovación conviene entrar a Spaceship, confirmar que el auto-renew sigue activo y validar que el pago se pueda procesar. Si algo falla, ejecutar el pago manual antes de la fecha límite.
+</Tip>
+
+### Plan B: si no se decide pagar la renovación
+
+Si por alguna razón no se paga la renovación de `gcmbigdata.online` en Spaceship, hay que dejar apuntada la documentación a otro dominio antes de que caduque. Para eso usamos la configuración de dominio personalizado de **Mintlify**:
+
+<Steps>
+  <Step title="Ir a Mintlify e iniciar sesión con GitHub">
+    Abre [https://mintlify.com](https://mintlify.com) y usa **Sign in with GitHub**. Con GitHub entramos a través del correo institucional de Big Data.
+  </Step>
+  <Step title="Ingresar la contraseña de Mintlify si la pide">
+    Mintlify puede pedir contraseña adicional. Las contraseñas están en **Infisical**:
+
+    ```text
+    Secrets Management → producción → /documentación
+    ```
+
+    Ahí encontrarás dos secretos:
+
+    - `mintlify_dashboard` — **esta es la que sirve para iniciar sesión** en el dashboard de Mintlify.
+    - `mintlify_password_web` — contraseña web alterna; no se usa para el login del dashboard.
+  </Step>
+  <Step title="Abrir Settings → Domain Setup">
+    Ya dentro del dashboard, en el sidebar entra a **Settings** y luego a **Domain Setup**.
+  </Step>
+  <Step title="Seguir el paso a paso de Mintlify">
+    Mintlify mostrará el paso a paso para agregar un **record de DNS en Cloudflare** que apunte la documentación al nuevo dominio. Sigue esa guía tal como aparece en pantalla: Mintlify indica exactamente qué tipo de registro (`CNAME`), qué nombre y qué valor usar.
+  </Step>
+  <Step title="Crear el record en Cloudflare">
+    En el dashboard de Cloudflare del nuevo dominio, crea el registro DNS que indicó Mintlify. Espera a que propague y valida desde Mintlify que el dominio quede en estado verificado.
+  </Step>
+</Steps>
+
+<Warning>
+  Este plan B **no reemplaza al túnel** de `gcmbigdata.online`: solo mueve la documentación pública. Si `gcmbigdata.online` se pierde, los servicios publicados por [Cloudflare Tunnel](/tunnel/introduccion) también dejan de responder bajo ese nombre y hay que rehacer la configuración con el nuevo dominio siguiendo [Compra y configuración](/dominios/compra-y-configuracion) y [Configurar el túnel](/tunnel/configurar-tunel).
+</Warning>
+
+## Propósito del dominio
+
+`gcmbigdata.online` existe para darle al equipo un camino de **adentro hacia afuera** sin depender de las restricciones de Fortinet. Se publica a través de Cloudflare Tunnel (`cloudflared`), no exponiendo el servidor directamente a internet.
+
+Para el paso a paso completo de cómo se compró y se conectó a Cloudflare, continúa en [Compra y configuración](/dominios/compra-y-configuracion).

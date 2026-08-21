@@ -1,0 +1,264 @@
+---
+title: "Configurar Cloudflare Tunnel para gcmbigdata.online"
+sidebarTitle: "Configurar el túnel"
+description: "Paso a paso completo para autenticar cloudflared, crear el túnel engine-clinicamedicos, escribir el config.yml, enrutar el DNS y dejarlo corriendo como servicio."
+---
+
+Esta guía documenta exactamente cómo se dejó funcionando el túnel `engine-clinicamedicos` publicando `gcmbigdata.online` desde el servidor RPATIC, y sirve como referencia para reconstruirlo si algún día toca hacerlo de nuevo o crear uno nuevo.
+
+<Info>
+  Todos los comandos se ejecutan como el usuario `rpatic` en el servidor RPATIC. Los archivos de credenciales quedan en `/home/rpatic/.cloudflared/`.
+</Info>
+
+## 1. Iniciar sesión en el servidor
+
+Conéctate por SSH al servidor RPATIC. Si es la primera vez, revisa la [Sección 2: Guía del servidor](/servidor/generar-clave-ssh).
+
+## 2. Autenticar cloudflared contra Cloudflare
+
+En la terminal del servidor:
+
+```bash
+cloudflared tunnel login
+```
+
+`cloudflared` imprimirá una URL similar a:
+
+```text
+https://dash.cloudflare.com/argotunnel?aud=&callback=https%3A%2F%2Flogin.cloudflareaccess.org%2FUoDh0QfjuecM0PFGz2xdwBwtlar7NnI_9isOGlu_AGg%3D
+```
+
+<Steps>
+  <Step title="Iniciar sesión en Gmail institucional">
+    Antes de pegar la URL, asegúrate de haber iniciado sesión en el **correo institucional de Big Data** en el navegador, porque esa es la cuenta con la que está creada la organización de Cloudflare.
+  </Step>
+  <Step title="Pegar la URL en el navegador">
+    Pega la URL que imprimió `cloudflared`. Se abrirá una vista para autorizar el túnel sobre una zona:
+
+    <Frame>
+      ![Pantalla de Authorize Cloudflare Tunnel con gcmbigdata.online listado como zona activa en la cuenta Coordinacionbigdata.](/images/cloudflared-authorize-zone.png)
+    </Frame>
+  </Step>
+  <Step title="Seleccionar la zona gcmbigdata.online">
+    Click en el dominio `gcmbigdata.online`. Aparecerá un modal de confirmación:
+
+    <Frame>
+      ![Modal Authorize Tunnel for gcmbigdata.online pidiendo confirmar la autorización del túnel para la zona.](/images/cloudflared-authorize-modal.png)
+    </Frame>
+  </Step>
+  <Step title="Click en Authorize">
+    Confirma la autorización. Si todo sale bien, verás el mensaje de éxito:
+
+    <Frame>
+      ![Modal Success indicando que Cloudflared instaló un certificado y ya se puede iniciar el túnel.](/images/cloudflared-authorize-success.png)
+    </Frame>
+  </Step>
+</Steps>
+
+De vuelta en la terminal, `cloudflared` confirmará:
+
+```text
+2026-08-20T20:53:47Z INF You have successfully logged in.
+If you wish to copy your credentials to a server, they have been saved to:
+/home/rpatic/.cloudflared/cert.pem
+```
+
+<Warning>
+  El archivo `cert.pem` es sensible: NO se sube al repositorio ni se comparte fuera del servidor.
+</Warning>
+
+## 3. Crear el túnel
+
+Crea el túnel llamado `engine-clinicamedicos`:
+
+```bash
+cloudflared tunnel create engine-clinicamedicos
+```
+
+Salida esperada:
+
+```text
+Tunnel credentials written to /home/rpatic/.cloudflared/d1953213-xxxx-4e21-xxxx-xxxxxx.json. cloudflared chose this file based on where your origin certificate was found. Keep this file secret. To revoke these credentials, delete the tunnel.
+
+Created tunnel engine-clinicamedicos with id d1953213-xxxx-xxxx-xxxx-xxxxx
+```
+
+<Note>
+  Cloudflare crea un archivo `.json` con las credenciales del túnel en `~/.cloudflared/<UUID>.json`. Guardar el `UUID` del túnel, se usa en el `config.yml`.
+</Note>
+
+Si aparece un warning de versión:
+
+```text
+2026-08-20T21:00:26Z WRN Your version 2026.3.0 is outdated. We recommend upgrading it to 2026.8.2
+```
+
+no bloquea la configuración, pero conviene actualizar `cloudflared` cuando haya ventana.
+
+## 4. Verificar el túnel
+
+Lista los túneles disponibles:
+
+```bash
+cloudflared tunnel list
+```
+
+Salida esperada:
+
+```text
+You can obtain more detailed information for each tunnel with `cloudflared tunnel info <name/uuid>`
+ID                                     NAME                   CREATED                CONNECTIONS
+d1953213-xxxx-xxxx-xxxx-xxxxx          engine-clinicamedicos  2026-08-20T21:00:24Z
+```
+
+Detalle del túnel:
+
+```bash
+cloudflared tunnel info engine-clinicamedicos
+```
+
+En este punto la salida indicará que aún no hay conexiones activas:
+
+```text
+Your tunnel d1953213-xxxx-xxxx-xxxx-xxxxx does not have any active connection.
+```
+
+<Tip>
+  Es normal que aparezca sin conexiones: todavía no hemos ejecutado el túnel ni tenemos el `config.yml` listo.
+</Tip>
+
+## 5. Crear el `config.yml`
+
+Edita el archivo de configuración en `~/.cloudflared/config.yml`:
+
+```bash
+nano ~/.cloudflared/config.yml
+```
+
+Contenido:
+
+```yaml ~/.cloudflared/config.yml
+tunnel: d1953213-6e90-4e21-b459-3b61e64e0e07
+credentials-file: /home/rpatic/.cloudflared/d1953213-6e90-4e21-b459-3b61e64e0e07.json
+
+ingress:
+  - hostname: gcmbigdata.online
+    service: https://127.0.0.1:443
+    originRequest:
+      noTLSVerify: true
+
+  - service: http_status:404
+```
+
+### Por qué `https://127.0.0.1:443` y `noTLSVerify: true`
+
+- El Nginx local ya está escuchando en `443` con TLS propio para `engine.clinicamedicos.com` y otros hosts internos.
+- Apuntar el túnel a `https://127.0.0.1:443` deja que Nginx siga terminando TLS interno sin romper esa configuración.
+- `noTLSVerify: true` le dice a `cloudflared` que no valide el certificado que presenta Nginx localmente (es un certificado interno, no coincide con el hostname público). Cloudflare sigue terminando TLS **público** para el visitante; solo el tramo interno túnel → Nginx omite la verificación.
+
+<Note>
+  Reemplaza los `UUID` del ejemplo por el que devolvió `cloudflared tunnel create` en tu servidor.
+</Note>
+
+## 6. Enrutar el DNS al túnel
+
+Crea el CNAME en Cloudflare para que `gcmbigdata.online` resuelva al túnel:
+
+```bash
+cloudflared tunnel route dns engine-clinicamedicos gcmbigdata.online
+```
+
+Salida esperada:
+
+```text
+2026-08-20T21:26:50Z INF Added CNAME gcmbigdata.online which will route to this tunnel tunnelID=d1953213-6e90-4e21-b459-3b61e64e0e07
+```
+
+Verifica la resolución DNS:
+
+```bash
+dig gcmbigdata.online
+```
+
+Debe responder con IPs de Cloudflare, por ejemplo:
+
+```text
+;; ANSWER SECTION:
+gcmbigdata.online.      55      IN      A       172.67.195.23
+gcmbigdata.online.      55      IN      A       104.21.44.50
+```
+
+O de forma corta:
+
+```bash
+dig +short gcmbigdata.online
+```
+
+```text
+104.21.44.50
+172.67.195.23
+```
+
+## 7. Ejecutar el túnel en primer plano
+
+Antes de instalarlo como servicio, corre el túnel en primer plano para confirmar que el `config.yml` funciona:
+
+```bash
+cloudflared --config /home/rpatic/.cloudflared/config.yml tunnel run engine-clinicamedicos
+```
+
+Salida esperada:
+
+```text
+2026-08-20T21:27:33Z INF Starting tunnel tunnelID=d1953213-6e90-4e21-b459-3b61e64e0e07
+2026-08-20T21:27:33Z INF Version 2026.3.0 (Checksum 4a9e50e6d6d798e90fcd01933151a90bf7edd99a0a55c28ad18f2e16263a5c30)
+```
+
+<Tip>
+  Prueba entrar a `https://gcmbigdata.online` desde el navegador (una vez el DNS haya propagado). Si carga el sitio servido por Nginx, el túnel está funcionando.
+</Tip>
+
+## 8. Instalar el túnel como servicio de systemd
+
+Una vez validado, detén el proceso con `Ctrl+C` e instálalo como servicio para que arranque solo con el servidor:
+
+<Steps>
+  <Step title="Detener el proceso en primer plano">
+    Presiona `Ctrl+C` en la terminal donde está corriendo `cloudflared`.
+  </Step>
+  <Step title="Instalar el servicio">
+    ```bash
+    sudo cloudflared --config /home/rpatic/.cloudflared/config.yml service install
+    ```
+  </Step>
+  <Step title="Habilitar el servicio al arranque">
+    ```bash
+    sudo systemctl enable cloudflared
+    ```
+  </Step>
+  <Step title="Iniciar el servicio">
+    ```bash
+    sudo systemctl start cloudflared
+    ```
+  </Step>
+  <Step title="Verificar el estado">
+    ```bash
+    sudo systemctl status cloudflared
+    ```
+
+    Debe mostrar `active (running)`. Con eso, el túnel queda arriba de forma persistente y sobrevive a reinicios del servidor.
+  </Step>
+</Steps>
+
+## Resumen
+
+Al terminar este proceso:
+
+- `gcmbigdata.online` resuelve a Cloudflare.
+- Cloudflare enruta el tráfico al túnel `engine-clinicamedicos`.
+- El túnel entrega el tráfico al Nginx local en `https://127.0.0.1:443`.
+- El servicio `cloudflared` arranca automáticamente con el servidor.
+
+<Warning>
+  Los archivos `cert.pem` y `<UUID>.json` bajo `/home/rpatic/.cloudflared/` son secretos: no se suben al repositorio, no se copian a otros servidores sin justificación y, si se comprometen, hay que revocar el túnel (`cloudflared tunnel delete`) y volver a crear uno.
+</Warning>

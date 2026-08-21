@@ -1,0 +1,67 @@
+---
+title: "Estándar SQL en Big Data: convenciones y estructura"
+sidebarTitle: "Introducción"
+description: "Convenciones internas para escribir SQL, nombrar tablas y organizar migraciones en los proyectos de Big Data del Grupo Clínica Médicos."
+icon: "archive"
+---
+
+Esta sección define el estándar SQL que usamos en todos los proyectos de Big Data. Cubre la convención de nombres para tablas, la estructura de carpetas para migraciones y el formato de los scripts DDL que ejecutamos manualmente contra la base de datos.
+
+## Objetivos
+
+- Mantener consistencia entre proyectos y equipos.
+- Facilitar la trazabilidad de cambios de esquema.
+- Evitar colisiones con tablas de otros módulos o sistemas legados.
+- Permitir re-ejecutar migraciones sin romper el estado actual.
+
+## Convención de nombres
+
+Toda tabla creada por un proyecto de Big Data debe cumplir con estas reglas:
+
+<Steps>
+  <Step title="Prefijo obligatorio BGD_">
+    Todas las tablas empiezan con el prefijo `BGD_` en mayúsculas. Esto las identifica como tablas propiedad del ecosistema Big Data y evita colisiones con tablas heredadas de otros sistemas en la misma base de datos.
+  </Step>
+  <Step title="Nombre en SCREAMING_SNAKE_CASE">
+    El resto del nombre va en mayúsculas y con guiones bajos separando palabras. No se usan minúsculas, camelCase ni PascalCase.
+  </Step>
+  <Step title="Módulo como segundo segmento">
+    Después del prefijo, incluir el nombre del módulo o dominio funcional al que pertenece la tabla, seguido del nombre lógico de la entidad.
+  </Step>
+</Steps>
+
+### Formato
+
+```sql
+BGD_<MODULO>_<ENTIDAD>
+```
+
+### Ejemplos válidos
+
+| Tabla | Módulo | Descripción |
+| --- | --- | --- |
+| `BGD_FLUJO_REPARTICION` | Flujo | Corridas de distribución automática de facturas |
+| `BGD_FLUJO_ASIGNACION` | Flujo | Asignaciones individuales de facturas a armadores |
+| `BGD_FLUJO_BALANCE_DIARIO` | Flujo | Agregación diaria del balance por armador |
+| `BGD_FLUJO_AUDITORIA_BALANCE` | Flujo | Auditoría de balance por repartición |
+
+### Ejemplos inválidos
+
+<Warning>
+  No usar nombres como `flujo_reparticion`, `FlujoReparticion`, `tbl_flujo`, ni `BGD_flujoReparticion`. Todos rompen el estándar y hacen ilegible el esquema.
+</Warning>
+
+## Reglas de columnas
+
+- Nombres de columnas en `snake_case` y minúsculas (`started_at`, `armador_id`, `total_saldo`).
+- Claves primarias explícitas en el `CREATE TABLE`.
+- Timestamps en UTC: usar `DATETIME2` con `DEFAULT GETUTCDATE()`.
+- Montos en `DECIMAL(18,2)`; nunca `FLOAT` ni `REAL` para dinero.
+- Identificadores externos tipo UUID en `NVARCHAR(36)`.
+- Textos largos en `NVARCHAR(MAX)` solo cuando sea estrictamente necesario.
+
+## Idempotencia
+
+Todo script DDL debe poder re-ejecutarse sin fallar. Usamos siempre el patrón `IF NOT EXISTS` para creación de tablas, envuelto en `BEGIN TRY ... BEGIN CATCH` para capturar errores y hacer `THROW` explícito.
+
+Continúa en [Migraciones](/sql/migraciones) para ver la estructura de carpetas y el ejemplo completo de una migración.

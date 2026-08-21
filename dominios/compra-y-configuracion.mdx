@@ -1,0 +1,163 @@
+---
+title: "Comprar un dominio en Spaceship y conectarlo a Cloudflare"
+sidebarTitle: "Compra y configuración"
+description: "Guía completa para comprar un dominio en Spaceship, activarlo en Cloudflare y cambiar los nameservers para dejarlo listo para publicar servicios."
+---
+
+Esta guía documenta cómo se compró y configuró `gcmbigdata.online`, y sirve como referencia para cualquier dominio nuevo que el equipo necesite comprar y conectar con Cloudflare. El objetivo es que si alguna vez hay que hacerlo de nuevo, quede claro cada paso.
+
+## Resumen del flujo
+
+<Steps>
+  <Step title="Comprar el dominio en Spaceship">
+    Búsqueda del nombre, pago anual y creación de cuenta.
+  </Step>
+  <Step title="Administrar el dominio">
+    Ingresar al Domain Manager de Spaceship para gestionarlo.
+  </Step>
+  <Step title="Agregar el dominio a Cloudflare">
+    Registrar el dominio en Cloudflare y obtener los nameservers asignados.
+  </Step>
+  <Step title="Cambiar los nameservers en Spaceship">
+    Reemplazar los nameservers de Spaceship por los de Cloudflare y esperar la propagación.
+  </Step>
+</Steps>
+
+## 1. Comprar el dominio en Spaceship
+
+<Steps>
+  <Step title="Abrir Spaceship">
+    Ir a [https://www.spaceship.com](https://www.spaceship.com).
+  </Step>
+  <Step title="Buscar el dominio">
+    En la barra de búsqueda del home, escribir el nombre del dominio que se quiere comprar. Spaceship mostrará las extensiones disponibles, sus precios y las promociones vigentes. Ten en cuenta que **el pago es anual**.
+  </Step>
+  <Step title="Agregar al carrito">
+    Elegir la variante deseada y añadirla al carrito.
+  </Step>
+  <Step title="Pagar">
+    Click en pagar.
+  </Step>
+  <Step title="Iniciar sesión o crear cuenta">
+    Spaceship pedirá iniciar sesión. Si es la primera vez, se crea la cuenta con el correo institucional de Big Data.
+  </Step>
+  <Step title="Completar los datos de pago">
+    Llenar los datos requeridos para procesar el pago.
+  </Step>
+  <Step title="Confirmar la compra">
+    Al finalizar el pago, el dominio queda comprado y asociado a la cuenta.
+  </Step>
+</Steps>
+
+<Tip>
+  Después de comprar, guardar/actualizar las credenciales de Spaceship en **Infisical** bajo `Secrets Management → producción → /dominio_<nombre_dominio>_spaceship` para que el resto del equipo pueda administrarlo.
+</Tip>
+
+## 2. Administrar el dominio en Spaceship
+
+Con la sesión iniciada, ir a [https://www.spaceship.com/application/domain-list-application/](https://www.spaceship.com/application/domain-list-application/) para ver el Domain Manager con el dominio recién comprado:
+
+<Frame>
+  ![Domain Manager de Spaceship con el dominio listado, fecha de expiración, auto-renew, privacidad y conexiones.](/images/spaceship-domain-manager.png)
+</Frame>
+
+Desde aquí se administran fecha de expiración, auto-renovación, privacidad y las conexiones del dominio.
+
+## 3. Conectar el dominio a Cloudflare
+
+<Steps>
+  <Step title="Abrir el dashboard de Cloudflare">
+    Ir a [https://dash.cloudflare.com/7f374a336cc077f3a090dcdd418e1cfa/home](https://dash.cloudflare.com/7f374a336cc077f3a090dcdd418e1cfa/home).
+  </Step>
+  <Step title="Iniciar sesión con el correo de Big Data">
+    Iniciar sesión con el correo institucional de Big Data. Las credenciales están en Infisical:
+
+    ```text
+    Secrets Management → producción → /correo_institucional
+    ```
+  </Step>
+  <Step title="Ir a Domains → Overview">
+    En el sidebar del dashboard, seleccionar **Domains**. Se abrirá un acordeón: click en **Overview**.
+  </Step>
+  <Step title="Agregar el dominio">
+    Click en **Add domain** y luego en **Connect a domain** (opción "Make your site faster, more secure, and more reliable").
+  </Step>
+  <Step title="Escribir el dominio comprado">
+    Escribir el dominio adquirido en Spaceship y click en **Continue**.
+  </Step>
+  <Step title="Elegir el plan Free">
+    En la vista _Select a plan for \[nombre dominio\]_, seleccionar el plan **Free \$0**.
+  </Step>
+  <Step title="Continuar en Manual entry">
+    En la vista _Manual entry_, click en **Continue to activation**.
+  </Step>
+  <Step title="Obtener los nameservers de Cloudflare">
+    Cloudflare mostrará la sección _Update your nameservers to activate Cloudflare_ con dos pasos. El importante es el segundo: **Replace your current nameservers with Cloudflare nameservers**.
+
+    Cloudflare asignará dos nameservers. Para `gcmbigdata.online` fueron:
+
+    ```text
+    evangeline.ns.cloudflare.com
+    pranab.ns.cloudflare.com
+    ```
+
+    <Note>
+      Los nameservers que asigna Cloudflare cambian por dominio. Copiar los que Cloudflare muestre en pantalla; no reutilizar estos si el dominio es distinto.
+    </Note>
+  </Step>
+</Steps>
+
+## 4. Cambiar los nameservers en Spaceship
+
+Con los nameservers de Cloudflare ya identificados, hay que reemplazar los de Spaceship:
+
+<Steps>
+  <Step title="Volver al Domain Manager de Spaceship">
+    Ir a [https://www.spaceship.com/application/domain-list-application/](https://www.spaceship.com/application/domain-list-application/) y hacer click sobre el dominio. Se abrirá un modal con las opciones de administración.
+  </Step>
+  <Step title="Abrir Nameservers & DNS">
+    En el modal, click en **Nameservers & DNS**.
+  </Step>
+  <Step title="Cambiar a Custom nameservers">
+    En la sección **Nameservers** verás por defecto:
+
+    ```text
+    dns.spaceship
+    dns.spaceship
+    ```
+
+    Click en **Change** junto a _Custom nameservers_ y reemplazar esos dos por los que dio Cloudflare, por ejemplo:
+
+    ```text
+    evangeline.ns.cloudflare.com
+    pranab.ns.cloudflare.com
+    ```
+  </Step>
+  <Step title="Guardar cambios">
+    Click en **Guardar**. Con eso el dominio queda apuntando a Cloudflare.
+  </Step>
+</Steps>
+
+## 5. Esperar propagación DNS
+
+Después de guardar los nameservers, hay que esperar a que se propaguen. Puede tardar:
+
+- Unos minutos en el mejor caso.
+- Algunas horas en escenarios normales.
+- Hasta **72 horas** en el peor caso.
+
+<Warning>
+  No hacer configuraciones adicionales hasta confirmar que Cloudflare marca el dominio como **Active**. Antes de eso, cualquier registro DNS o túnel que se cree puede no responder.
+</Warning>
+
+## Después de la propagación
+
+Una vez el dominio está activo en Cloudflare, ya se puede:
+
+- Crear registros DNS desde Cloudflare (A, CNAME, etc.).
+- Publicar servicios internos usando **Cloudflare Tunnel (`cloudflared`)**.
+- Emitir certificados y usar el proxy de Cloudflare.
+
+<Tip>
+  Las páginas donde se use el dominio (Cloudflare Tunnel, aplicaciones internas, etc.) explican qué configurar en cada caso. Además, cualquier asistente de IA moderno está bien entrenado para guiar la configuración específica de DNS y túneles si aparece alguna duda puntual.
+</Tip>

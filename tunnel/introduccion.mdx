@@ -1,0 +1,67 @@
+---
+title: "Cloudflare Tunnel: por qué compramos gcmbigdata.online"
+sidebarTitle: "Introducción"
+description: "Razón de ser del dominio propio: publicar servicios internos hacia afuera con Cloudflare Tunnel sin exponer el servidor ni pelearnos con Fortinet."
+---
+
+Esta sección explica por qué el equipo Big Data compró el dominio `gcmbigdata.online` y qué se hace con él a través de **Cloudflare Tunnel** (`cloudflared`). Es la continuación natural de la [Sección 5: Dominios](/dominios/introduccion).
+
+## El problema que resolvemos
+
+Dentro de la red corporativa hay servicios internos que se necesitan consumir desde afuera (por ejemplo desde el navegador de un integrante del equipo, un cliente, o una IA externa). Los caminos "clásicos" tienen fricción:
+
+- **Fortinet** aplica restricciones y bloqueos sobre puertos y hosts entrantes/salientes.
+- Abrir puertos hacia internet **expone el servidor** directamente y requiere pelear con seguridad y firewall.
+- Publicar detrás de la IP pública corporativa depende de infraestructura que no administramos.
+
+## La solución: Cloudflare Tunnel
+
+`cloudflared` crea un **túnel saliente** desde el servidor hacia la red de Cloudflare. Cloudflare recibe el tráfico público en el dominio (`gcmbigdata.online`) y lo entrega al servidor por el túnel ya establecido.
+
+<CardGroup cols={2}>
+  <Card title="De adentro hacia afuera" icon="arrow-right-from-bracket">
+    El servidor abre la conexión; Fortinet no tiene que permitir tráfico entrante hacia nosotros.
+  </Card>
+
+  <Card title="Sin exponer el servidor" icon="shield-halved">
+    No hay puertos públicos abiertos en el servidor. Cloudflare es el borde público.
+  </Card>
+
+  <Card title="Con nuestro propio dominio" icon="globe">
+    Publicamos bajo `gcmbigdata.online`, dominio comprado y administrado por Big Data.
+  </Card>
+
+  <Card title="TLS end-to-end" icon="lock">
+    Cloudflare termina TLS público y el túnel reenvía a `https://127.0.0.1:443` sin romper el cifrado del Nginx interno.
+  </Card>
+</CardGroup>
+
+<Warning>
+  Publicar por Cloudflare Tunnel **no** significa que el servidor esté expuesto a internet. Cloudflare es el único punto de entrada público; el servidor sigue detrás de la red interna y solo habla con Cloudflare por la conexión saliente que abre `cloudflared`.
+</Warning>
+
+## Qué vamos a configurar
+
+El túnel actual del equipo se llama `engine-clinicamedicos` y publica `gcmbigdata.online` apuntando al Nginx local del servidor RPATIC (`https://127.0.0.1:443`) sin romper el TLS interno.
+
+El siguiente flujo, que se documenta en [Configurar el túnel](/tunnel/configurar-tunel), cubre todo el proceso paso a paso:
+
+<Steps>
+  <Step title="cloudflared tunnel login">
+    Autenticar `cloudflared` contra la cuenta de Cloudflare autorizando la zona `gcmbigdata.online`.
+  </Step>
+  <Step title="cloudflared tunnel create">
+    Crear el túnel `engine-clinicamedicos` y guardar sus credenciales en `~/.cloudflared/`.
+  </Step>
+  <Step title="Escribir el config.yml">
+    Definir el `ingress` que enruta `gcmbigdata.online` hacia el Nginx local con `noTLSVerify: true`.
+  </Step>
+  <Step title="cloudflared tunnel route dns">
+    Crear el CNAME en Cloudflare para que `gcmbigdata.online` apunte al túnel.
+  </Step>
+  <Step title="Ejecutar y luego instalar como servicio">
+    Correr el túnel en primer plano para validar, y después instalarlo como servicio de systemd para que arranque solo.
+  </Step>
+</Steps>
+
+Continúa en [Configurar el túnel](/tunnel/configurar-tunel).

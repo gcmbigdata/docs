@@ -1,0 +1,56 @@
+---
+title: "Dominios del ecosistema Big Data: overview general"
+sidebarTitle: "Introducción"
+description: "Panorama de los dos dominios que usa Big Data: engine.clinicamedicos.com administrado por infraestructura y gcmbigdata.online administrado por el equipo vía Cloudflare."
+---
+
+En Big Data trabajamos con dos dominios distintos que cumplen roles muy diferentes dentro del ecosistema. Esta sección explica cuál es cada uno, quién lo administra y por qué existe.
+
+## Dominios en uso
+
+<CardGroup cols={2}>
+  <Card title="engine.clinicamedicos.com" icon="building">
+    Dominio corporativo administrado por el encargado de infraestructura.
+  </Card>
+
+  <Card title="gcmbigdata.online" icon="globe" href="/dominios/gcmbigdata-online">
+    Dominio propio del equipo Big Data, administrado por nosotros vía Cloudflare.
+  </Card>
+</CardGroup>
+
+## engine.clinicamedicos.com
+
+Es el dominio corporativo del Grupo Clínica Médicos. Su administración NO depende del equipo de Big Data:
+
+- **Administrador:** el encargado de infraestructura.
+- **Contacto ante problemas:** cualquier inconveniente con el dominio, los DNS o el certificado se escala directamente al encargado de infraestructura.
+- **Certificado SSL:** documentado en la [Sección 3: Administración y Operación → Infraestructura y despliegue → Certificados SSL](/administracion/certificados-ssl), en el apartado del servidor RPATIC.
+
+<Note>
+  Big Data solo consume este dominio; no tenemos acceso a modificar sus DNS ni renovar su certificado.
+</Note>
+
+## gcmbigdata.online
+
+Es el dominio propio del equipo Big Data. Lo compramos y lo administramos nosotros mismos, y lo gestionamos a través de Cloudflare.
+
+- **Registrador:** Spaceship.
+- **DNS y proxy:** Cloudflare.
+- **Administrador:** el equipo Big Data.
+- **Propósito principal:** habilitar un camino de adentro hacia afuera que no dependa de las restricciones de Fortinet, sin exponer el servidor a internet.
+
+<Warning>
+  Tener el dominio publicado en Cloudflare **no** significa que estamos exponiendo el servidor al público. Usamos Cloudflare Tunnel (`cloudflared`) para publicar servicios de forma controlada. Más adelante explicaremos este tema con más detalle; por ahora esto es solo un abre bocas.
+</Warning>
+
+## Siguientes páginas
+
+<CardGroup cols={2}>
+  <Card title="gcmbigdata.online" icon="globe" href="/dominios/gcmbigdata-online">
+    Credenciales, fecha de renovación y costo anual del dominio propio.
+  </Card>
+
+  <Card title="Compra y configuración" icon="cart-shopping" href="/dominios/compra-y-configuracion">
+    Paso a paso para comprar un dominio en Spaceship y conectarlo con Cloudflare.
+  </Card>
+</CardGroup>

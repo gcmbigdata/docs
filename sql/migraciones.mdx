@@ -1,0 +1,150 @@
+---
+title: "Migraciones SQL: estructura de carpetas y ejemplo"
+sidebarTitle: "Migraciones"
+description: "Cómo organizar la carpeta db/migrations, numerar los scripts y qué formato deben seguir las migraciones DDL en los proyectos Big Data."
+---
+
+Cada proyecto que toque base de datos debe llevar una carpeta `db/migrations` en la raíz del repositorio. Ahí viven todos los scripts DDL versionados, numerados y en orden estricto de ejecución.
+
+## Estructura de carpetas
+
+```text
+<proyecto>/
+├── db/
+│   └── migrations/
+│       ├── 001_create_flujo_tables.sql
+│       ├── 002_create_reasignaciones.sql
+│       └── 003_...
+├── src/
+└── ...
+```
+
+### Reglas
+
+<Steps>
+  <Step title="Prefijo numérico de 3 dígitos">
+    Los archivos empiezan con `001_`, `002_`, `003_`, ... El número indica el orden estricto en que se ejecutan.
+  </Step>
+  <Step title="Nombre descriptivo en snake_case">
+    Después del número, un nombre corto que describa qué hace la migración: `create_flujo_tables`, `create_reasignaciones`, `add_index_asignacion`, etc.
+  </Step>
+  <Step title="Extensión .sql">
+    Siempre `.sql`, un archivo por migración. No mezclar múltiples cambios lógicos independientes en un mismo script.
+  </Step>
+  <Step title="Ejecución manual">
+    Las migraciones se ejecutan manualmente contra la base de datos correspondiente (por ejemplo `DGEMPRES01`). No hay runner automático, por eso el orden y la idempotencia son críticos.
+  </Step>
+</Steps>
+
+## Formato del script
+
+Todo script debe:
+
+- Iniciar con un comentario de cabecera que indique el módulo, qué crea, contra qué base se ejecuta y que es seguro re-ejecutar.
+- Envolver el DDL en `BEGIN TRY ... BEGIN CATCH`.
+- Usar `IF NOT EXISTS (SELECT * FROM sys.tables WHERE name = '...')` antes de cada `CREATE TABLE`.
+- Emitir `PRINT` por cada tabla creada, y un `PRINT` final de éxito.
+- En el `CATCH`, imprimir el mensaje de error y hacer `THROW`.
+
+## Ejemplo: `001_create_flujo_tables.sql`
+
+Este es el script de referencia para el módulo Flujo. Sirve como plantilla para cualquier migración nueva.
+
+```sql 001_create_flujo_tables.sql lines
+-- Flujo Module DDL Migration
+-- Creates 3 tables for automatic invoice distribution.
+-- Run manually against DGEMPRES01.
+-- Safe to re-run: uses IF NOT EXISTS patterns.
+BEGIN TRY
+    -- FLUJO_REPARTICION: tracks each distribution run
+    IF NOT EXISTS (SELECT * FROM sys.tables WHERE name = 'BGD_FLUJO_REPARTICION')
+    BEGIN
+        CREATE TABLE dbo.BGD_FLUJO_REPARTICION (
+            id              NVARCHAR(36) PRIMARY KEY,
+            started_at      DATETIME2 NOT NULL DEFAULT GETUTCDATE(),
+            completed_at    DATETIME2 NULL,
+            status          NVARCHAR(20) NOT NULL DEFAULT 'running',
+            invoices_found  INT NOT NULL DEFAULT 0,
+            invoices_new    INT NOT NULL DEFAULT 0,
+            invoices_distributed INT NOT NULL DEFAULT 0,
+            error_message   NVARCHAR(MAX) NULL
+        );
+    END
+    PRINT 'BGD_FLUJO_REPARTICION OK';
+
+    -- FLUJO_ASIGNACION: individual invoice assignments
+    IF NOT EXISTS (SELECT * FROM sys.tables WHERE name = 'BGD_FLUJO_ASIGNACION')
+    BEGIN
+        CREATE TABLE dbo.BGD_FLUJO_ASIGNACION (
+            num_factura    NVARCHAR(50) NOT NULL,
+            reparticion_id NVARCHAR(36) NOT NULL,
+            armador_id     INT NOT NULL,
+            armador_cc     NVARCHAR(30) NOT NULL,
+            armador_nombre NVARCHAR(200) NOT NULL,
+            categoria      NVARCHAR(20) NOT NULL,
+            saldo          DECIMAL(18,2) NOT NULL,
+            fec_factura    DATE NOT NULL,
+            assigned_at    DATETIME2 NOT NULL DEFAULT GETUTCDATE(),
+            PRIMARY KEY (num_factura, reparticion_id)
+        );
+    END
+    PRINT 'BGD_FLUJO_ASIGNACION OK';
+
+    -- FLUJO_BALANCE_DIARIO: daily balance aggregation
+    IF NOT EXISTS (SELECT * FROM sys.tables WHERE name = 'BGD_FLUJO_BALANCE_DIARIO')
+    BEGIN
+        CREATE TABLE dbo.BGD_FLUJO_BALANCE_DIARIO (
+            id            INT IDENTITY(1,1) PRIMARY KEY,
+            armador_id    INT NOT NULL,
+            categoria     NVARCHAR(20) NOT NULL,
+            fecha         DATE NOT NULL,
+            invoice_count INT NOT NULL DEFAULT 0,
+            total_saldo   DECIMAL(18,2) NOT NULL DEFAULT 0,
+            UNIQUE (armador_id, categoria, fecha)
+        );
+    END
+    PRINT 'BGD_FLUJO_BALANCE_DIARIO OK';
+
+    -- FLUJO_AUDITORIA_BALANCE: per-reparticion balance audit snapshots
+    IF NOT EXISTS (SELECT * FROM sys.tables WHERE name = 'BGD_FLUJO_AUDITORIA_BALANCE')
+    BEGIN
+        CREATE TABLE dbo.BGD_FLUJO_AUDITORIA_BALANCE (
+            id                INT IDENTITY(1,1) PRIMARY KEY,
+            reparticion_id    NVARCHAR(36) NOT NULL,
+            recorded_at       DATETIME2 NOT NULL DEFAULT GETUTCDATE(),
+            categoria         NVARCHAR(20) NOT NULL,
+            gap_ratio         DECIMAL(10,4) NOT NULL,
+            max_armador_id    INT NOT NULL,
+            max_armador_nombre NVARCHAR(200) NOT NULL,
+            max_monto         DECIMAL(18,2) NOT NULL,
+            min_armador_id    INT NOT NULL,
+            min_armador_nombre NVARCHAR(200) NOT NULL,
+            min_monto         DECIMAL(18,2) NOT NULL,
+            total_monto       DECIMAL(18,2) NOT NULL,
+            total_count       INT NOT NULL,
+            is_alert          BIT NOT NULL DEFAULT 0
+        );
+    END
+    PRINT 'BGD_FLUJO_AUDITORIA_BALANCE OK';
+
+    PRINT 'Flujo migration completed successfully.';
+END TRY
+BEGIN CATCH
+    PRINT 'Flujo migration failed: ' + ERROR_MESSAGE();
+    THROW;
+END CATCH;
+```
+
+## Checklist antes de subir una migración
+
+- [ ] El nombre del archivo sigue `NNN_descripcion.sql`.
+- [ ] Todas las tablas nuevas empiezan con `BGD_` y usan `SCREAMING_SNAKE_CASE`.
+- [ ] Cada `CREATE TABLE` está protegido con `IF NOT EXISTS`.
+- [ ] El script está envuelto en `BEGIN TRY / BEGIN CATCH` con `THROW`.
+- [ ] Hay `PRINT` de confirmación por cada tabla y un `PRINT` final de éxito.
+- [ ] La cabecera indica el módulo, la base contra la que se ejecuta y que es seguro re-ejecutar.
+- [ ] Se probó la ejecución en un entorno no productivo antes de correrla en producción.
+
+<Note>
+  Si una migración necesita modificar tablas existentes (por ejemplo agregar columnas o índices), aplicar la misma disciplina: nuevo archivo numerado, protección con `IF NOT EXISTS` / `IF COL_LENGTH(...) IS NULL`, y bloque `TRY / CATCH`.
+</Note>

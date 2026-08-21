@@ -107,6 +107,44 @@
             ]
           }
         ]
+      },
+      {
+        "tab": "Sección 4: Estándar SQL",
+        "groups": [
+          {
+            "group": "Estándar SQL",
+            "pages": [
+              "sql/introduccion",
+              "sql/migraciones"
+            ]
+          }
+        ]
+      },
+      {
+        "tab": "Sección 5: Dominios",
+        "groups": [
+          {
+            "group": "Dominios",
+            "pages": [
+              "dominios/introduccion",
+              "dominios/gcmbigdata-online",
+              "dominios/compra-y-configuracion"
+            ]
+          }
+        ]
+      },
+      {
+        "tab": "Sección 6: Cloudflare Tunnel",
+        "groups": [
+          {
+            "group": "Cloudflare Tunnel",
+            "pages": [
+              "tunnel/introduccion",
+              "tunnel/configurar-tunel",
+              "tunnel/seguridad"
+            ]
+          }
+        ]
       }
     ]
   },
