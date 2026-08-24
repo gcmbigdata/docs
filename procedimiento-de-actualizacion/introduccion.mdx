@@ -33,11 +33,67 @@ Esto aplica para proyectos que tienen PM2 o son estáticos. Cuando se realiza un
         El comando exacto dependerá de la tecnología y configuración de cada proyecto.
       </Tab>
       <Tab title="Proyecto con PM2">
-        - Ingresar a PM2 View.
-        - Buscar el proyecto correspondiente.
-        - Seleccionar el proyecto.
-        - Hacer clic en el botón **Deploy**.
-        - PM2 View ejecutará el proceso de actualización definido para el proyecto.
+        ## Antes (todo manual por SSH)
+
+        **Actualizar un proyecto:**
+
+        ```bash
+        ssh servidor
+        cd /ruta/proyecto
+        git pull
+        pnpm build
+        pm2 restart app --update-env
+        ```
+
+        **Crear un proyecto nuevo:**
+
+        ```bash
+        ssh servidor
+        cd /ruta/proyectos
+        git clone git@github.com:org/repo.git   # requería deploy key o PAT en el server
+        pnpm install && pnpm build
+        pm2 start ecosystem.config.js
+        ```
+
+        ## Ahora (con la integración de GitHub)
+
+        **Setup único:** conectás tu cuenta en `/github`, instalás la GitHub App seleccionando los repos. Listo, no hay claves SSH ni PATs guardadas en el servidor.
+
+        **Crear proyecto (Import):**
+
+        Desde la UI `/github` → clic en **Import** sobre el repo. El pipeline corre solo (`GitHubImportPipelineService`):
+
+        | Paso | Qué hace | Equivalente manual |
+        | --- | --- | --- |
+        | `clone` | `git clone --depth 1` con token de instalación embebido en la URL (válido 1h) | `git clone` |
+        | `install` | Detecta package manager (pnpm/bun/npm por lockfile) e instala | `pnpm install` |
+        | `build` | Corre `build` si existe el script (o comando custom que configures) | `pnpm build` |
+        | `ecosystem` | Detecta archivos `ecosystem.config.*` del repo | buscarlos a mano |
+        | `pm2-start` | `pm2 start ecosystem.config.js --update-env` | `pm2 start` |
+
+        Bonus: si pnpm pide aprobación de builds nativos, te lo detecta y tenés botón para `pnpm approve-builds --all`.
+
+        **Actualizar proyecto:** dos caminos desde la UI, sin tocar el server:
+
+        1. **Manual:** botón de update/deploy → ejecuta el mismo pipeline pero con `git pull` en vez de clone (`deploy.service.ts`: _git pull → install → build → pm2 restart --update-env_).
+        2. **Auto-deploy:** habilitás auto-deploy por proyecto (`autoDeployEnabled` \+ `deployBranch` \+ `targetPath`). Cada `git push` a esa rama dispara el webhook → se encola un deployment → corre el pipeline automáticamente, con registro de deployments (commit SHA, logs, idempotencia por delivery ID).
+
+        ## La diferencia de fondo
+
+        Lo que cambia conceptualmente es **quién hace el trabajo y cómo se autentica git**:
+
+        - **Antes:** vos eras el deploy system. La autenticación era estática (deploy keys/PATs permanentes en el server).
+        - **Ahora:** PM2 View es el deploy system. La autenticación es dinámica, `git-auth.provider.ts` mintea tokens de instalación de corta vida (1h) por operación, scopeados al repo. Si revocás la instalación, todo deja de funcionar al instante sin rotar claves.
+
+        Lo único que sigue manual: configurar variables de entorno del proyecto (`.env`) y elegir el ecosystem file en el paso final del import.
+
+        ## Validar la aplicación
+
+        Después del deploy, PM2 View notifica por correo el resultado del despliegue con el estado, proyecto, repositorio, commit, duración y hora de finalización:
+
+        <Frame>
+          ![Correo de PM2 View con asunto "Deploy succeeded — paciente-trazador-api (main)" mostrando status Success, commit 203f23d y duración 6.1s.](/images/pm2-view-deploy-succeeded.png)
+        </Frame>
       </Tab>
     </Tabs>
   </Step>

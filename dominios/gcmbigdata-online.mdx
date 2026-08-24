@@ -83,9 +83,15 @@ Si por alguna razón no se paga la renovación de `gcmbigdata.online` en Spacesh
   </Step>
 </Steps>
 
-<Warning>
+<Danger>
   Este plan B **no reemplaza al túnel** de `gcmbigdata.online`: solo mueve la documentación pública. Si `gcmbigdata.online` se pierde, los servicios publicados por [Cloudflare Tunnel](/tunnel/introduccion) también dejan de responder bajo ese nombre y hay que rehacer la configuración con el nuevo dominio siguiendo [Compra y configuración](/dominios/compra-y-configuracion) y [Configurar el túnel](/tunnel/configurar-tunel).
-</Warning>
+</Danger>
+
+<Danger>
+  Al cambiar de dominio también hay que **rehacer toda la integración de GitHub de PM2 View**: la GitHub App queda atada al dominio anterior (callback URL, webhook URL, setup URL), así que hay que crear una nueva GitHub App apuntando al nuevo dominio, reinstalarla sobre los repos y volver a conectar la cuenta desde `/github`.
+
+  El paso a paso completo está en la documentación de PM2 View: `docs/github-integration.md` (ver también el índice de docs en [pm2-view/tree/main/docs](https://github.com/programadorisgod/pm2-view/tree/main/docs)).
+</Danger>
 
 ## Propósito del dominio
 
