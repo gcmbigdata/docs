@@ -11,8 +11,8 @@ Para facilitar la administración de los procesos PM2 utilizamos **PM2 View**, u
     programadorisgod/pm2-view
   </Card>
 
-  <Card title="Producción" icon="globe" href="https://engine.clinicamedicos.com/pm2/">
-    engine.clinicamedicos.com/pm2
+  <Card title="Producción" icon="globe" href="https://gcmbigdata.online/pm2">
+    gcmbigdata.online/pm2
   </Card>
 </CardGroup>
 
@@ -37,7 +37,7 @@ Para facilitar la administración de los procesos PM2 utilizamos **PM2 View**, u
     Antes de comenzar el desarrollo, crea una rama específica de acuerdo con la funcionalidad que vas a realizar.
 
     ```bash
-    git checkout -b feature/nombre-de-la-funcionalidad
+    git switch -c feature/nombre-de-la-funcionalidad
     ```
 
     Esto permite mantener aislados los cambios de la nueva funcionalidad y facilita posteriormente su revisión e integración.
@@ -101,7 +101,7 @@ Para facilitar la administración de los procesos PM2 utilizamos **PM2 View**, u
     A partir de este momento, los cambios estarán disponibles en el fork o repositorio de la organización.
   </Step>
   <Step title="Actualizar la aplicación desde PM2 View">
-    Una vez que hayas enviado tus cambios al repositorio, accede a la interfaz de **PM2 View**: [https://engine.clinicamedicos.com/pm2/](https://engine.clinicamedicos.com/pm2/)
+    Una vez que hayas enviado tus cambios al repositorio, accede a la interfaz de **PM2 View**: [https://gcmbigdata.online/pm2](https://gcmbigdata.online/pm2)
 
     Desde allí, haz clic en el botón **Update** del proyecto correspondiente.
 
@@ -176,6 +176,116 @@ El flujo habitual consiste en:
 5. Reiniciar el proceso.
 6. Revisar los logs.
 7. Validar que la aplicación se encuentre funcionando correctamente.
+
+## Auto-Deploy (webhook de GitHub)
+
+Además del botón **Update** manual, PM2 View soporta **despliegue automático**: cuando GitHub envía un evento `push` sobre el repo y rama configurados, PM2 View ejecuta en background el pipeline completo (git → install → build → `pm2 restart` → verificación → post-deploy) y deja registrado cada paso en el historial de deployments del proyecto.
+
+### Antes vs. ahora
+
+**Antes (manual).** Cada deploy de ATLAS eran 4 pasos:
+
+1. SSH al server y `cd /home/rpatic/ATLAS/`.
+2. `git pull && pnpm build`.
+3. Reiniciar `atlas-backend` y `atlas-frontend` a mano en PM2 View.
+4. Aparte, correr `ATLAS_DOCS_BASE=/atlas/docs pnpm build:docs` (obligatorio, si no la doc no se publicaba).
+
+**Ahora.** Hacés `git push` y nada más. El webhook dispara el pipeline completo:
+
+```text
+push → git pull → pnpm install → pnpm build → restart atlas-backend + atlas-frontend → verify online
+                                                                                    → ATLAS_DOCS_BASE=/atlas/docs pnpm build:docs  (post-deploy)
+```
+
+Sin SSH, sin restart manual, sin acordarte del `build:docs`.
+
+### Qué hace el pipeline
+
+| Etapa | Acciones | En caso de fallo |
+| --- | --- | --- |
+| **git** | Verifica el árbol limpio (solo archivos trackeados) → `fetch` → `checkout` de la rama → `pull --ff-only` | Falla rápido; no se toca nada más |
+| **install** | Comando configurado, o fallback al package manager detectado (`pnpm`/`npm`/`yarn`) | Falla; el build no corre |
+| **build** | Comando configurado, o `<pm> run build` si el script existe; se salta si no hay ninguno | Falla; **PM2 no se reinicia** |
+| **pm2** | Para cada nombre en `pm2_names`: `pm2 restart <name> --update-env`, luego espera a que quede `online` | Falla si algún proceso no llega a `online` |
+| **post-deploy** | Comandos opcionales configurados; corren en secuencia después del restart | Nunca hace fallar el deploy; queda warning |
+
+El pipeline es **no destructivo**: nunca corre `reset --hard`, `clean` ni `checkout .`. Si hay cambios locales en archivos trackeados dentro de `target_path`, el deploy aborta explícitamente.
+
+<Info>
+  Para grupos multi-proceso (por ejemplo `["atlas-backend", "atlas-frontend"]`), PM2 View valida **antes de tocar nada** que todos los procesos existan en PM2. Si alguno no existe, hay que arrancarlo manualmente una vez con su ecosystem file: el auto-start desde el pipeline todavía no está soportado.
+</Info>
+
+### Configuración en PM2 View (una sola vez por proyecto)
+
+En el proyecto → pestaña **Config** → tarjeta **Automatic Deployment**:
+
+| Campo | Valor de ejemplo (ATLAS) | Notas |
+| --- | --- | --- |
+| Automatic deployment | `ON` | Interruptor maestro; si está en OFF, los push se ignoran |
+| GitHub Repository | `owner/ATLAS` | Copiado del URL `github.com/<owner>/<name>`; debe coincidir |
+| Branch | `main` | Solo los push a esta rama disparan deploy |
+| `target_path` | `/home/rpatic/ATLAS/` | Ruta absoluta al clone en el servidor |
+| `pm2_names` | `["atlas-backend", "atlas-frontend"]` | Todos los procesos que hay que reiniciar juntos |
+| Post-Deploy Actions | `pnpm build:docs` | Se ejecuta después del restart; falla → solo warning |
+
+Con esa configuración, cada `git push` (código o documentación) regenera la doc automáticamente al final. El warning de "si no corrés `build:docs` la doc no se publica" deja de ser tarea manual.
+
+<Tip>
+  Los comandos post-deploy admiten variables inline al estilo `KEY=VALUE comando`. Por ejemplo, `ATLAS_DOCS_BASE=/atlas/docs pnpm build:docs` inyecta `ATLAS_DOCS_BASE` solo para ese comando, sin necesidad de exportarla en el entorno del servidor.
+</Tip>
+
+### Registrar el webhook en GitHub
+
+En el repo → **Settings → Webhooks → Add webhook**:
+
+| Campo | Valor |
+| --- | --- |
+| Payload URL | `https://gcmbigdata.online/pm2/api/webhooks/github` |
+| Content type | `application/json` |
+| Secret | `pm2-big-data` |
+| SSL verification | **Enable SSL verification** (dejarlo por defecto) |
+| Which events | **Just the push event** |
+| Active | ✅ Marcado |
+
+<Warning>
+  El `Secret` **tiene que ser exactamente** el mismo valor que la variable `GITHUB_WEBHOOK_SECRET` que corre PM2 View en el servidor. Si no coincide, GitHub va a recibir `401 Invalid webhook signature` en cada entrega y ningún push disparará deploy.
+
+  El secret actual de Big Data es `pm2-big-data`. Si se rota, hay que actualizarlo **en los dos lados** (env del server \+ webhook de cada repo) o los auto-deploys dejan de funcionar en silencio.
+</Warning>
+
+### Cómo se autentica git
+
+PM2 View no usa deploy keys ni PATs guardados en el server. Cada operación de git dentro del pipeline usa un **token de instalación de la GitHub App**, minteado on-demand y con validez de 1 hora, scopeado al repo. Prerrequisito: la GitHub App de PM2 View tiene que estar instalada sobre el owner del repo. El paso a paso vive en [`docs/github-integration.md`](https://github.com/programadorisgod/pm2-view/blob/main/docs/github-integration.md) del repo de PM2 View.
+
+### Qué pasa en cada entrega del webhook
+
+| Código HTTP | Significado |
+| --- | --- |
+| `202` | Aceptado; el deployment se encoló (la respuesta trae los IDs) |
+| `200` | Delivery duplicado (mismo `X-GitHub-Delivery`); replay idempotente, no se corre dos veces |
+| `204` | Ignorado: evento no-push, o el repo/rama no coincide, o `Automatic deployment` está en OFF |
+| `401` | Firma HMAC inválida (secret incorrecto) |
+
+La firma se valida con HMAC-SHA256 sobre el cuerpo crudo del request, con comparación timing-safe. La idempotencia se garantiza por un `UNIQUE` sobre `X-GitHub-Delivery` en la tabla de deployments.
+
+### Notificaciones por correo
+
+Al terminar cada deployment (éxito o fallo), PM2 View manda un correo con el resultado al owner del proyecto y a la dirección configurada en `notify_email` (deduplicadas). El correo incluye estado, proyecto, `repo@branch`, commit SHA, etapa donde falló (si aplica), error y duración. La entrega usa SMTP; si el envío falla queda en logs pero **nunca** afecta el resultado del deployment.
+
+### Troubleshooting
+
+| Síntoma | Causa probable | Cómo resolverlo |
+| --- | --- | --- |
+| `401 Invalid webhook signature` | Secret distinto entre GitHub y el env de PM2 View | Igualar `GITHUB_WEBHOOK_SECRET` con el Secret del webhook |
+| Push ignorado (`204`) | Repo/rama no coincide o `Automatic deployment` en OFF | Revisar que Config coincida exactamente con lo que llega de GitHub |
+| Falla en git: `authentication` | La GitHub App no está instalada sobre el owner del repo | Instalar la App / revisar `github_installations` |
+| Falla en git: `local modifications` | Hay cambios locales en archivos trackeados dentro de `target_path` | Limpiar/stashear cambios en el servidor |
+| Falla en pm2: `process not found` | Un nombre de `pm2_names` no existe en PM2 | Arrancarlo una vez manualmente con su ecosystem file |
+| Build falló, el proceso sigue con el PID viejo | Diseño: PM2 solo reinicia si el build fue exitoso | Arreglar el build y volver a deployar |
+
+<Card title="Guía completa de auto-deploy en el repo de PM2 View" icon="book" href="https://github.com/programadorisgod/pm2-view/blob/main/docs/github-integration.md">
+  Referencia técnica extendida: setup, migraciones, código relevante y ejemplos de simulación firmada.
+</Card>
 
 ### PM2 Save
 
