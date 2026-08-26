@@ -345,3 +345,92 @@ El objetivo es que, después de un reinicio del servidor, los procesos previamen
 PM2 View también proporciona información relacionada con el estado de ejecución de las aplicaciones y del servidor. Esto permite tener una visión rápida del consumo de recursos y detectar comportamientos anómalos.
 
 ![Image](/images/image-13.png "Image")
+
+## Alertas de error en procesos
+
+PM2 View monitorea tus procesos automáticamente y te avisa por email cuando algo sale mal. Así te enteras al instante si un proyecto se cae, sin tener que estar revisando el dashboard.
+
+<Frame>
+  ![Ejemplo de email de alerta cuando un proceso entra en estado de error](/images/pm2-view-email-alert.png)
+</Frame>
+
+### ¿Qué hace?
+
+Cuando un proceso cae o entra en estado de error, el sistema envía una notificación por email a ti y a tu equipo. No necesitas estar revisando manualmente el estado de tus proyectos.
+
+### ¿Cómo funciona?
+
+<CardGroup cols={3}>
+  <Card title="Monitoreo automático" icon="eye">
+    Cada 10 segundos se verifica el estado de todos los procesos registrados.
+  </Card>
+
+  <Card title="Alerta instantánea" icon="bell">
+    Si un proceso pasa de `online` a `error`, se envía un email de inmediato.
+  </Card>
+
+  <Card title="Cooldown inteligente" icon="shield-check">
+    Cada proceso solo puede generar una alerta cada 5 minutos para evitar spam.
+  </Card>
+</CardGroup>
+
+### ¿Quién recibe las alertas?
+
+- El **dueño del proyecto**
+- El **email de notificación** configurado en el proyecto (si existe)
+- Todos los **miembros del equipo** (si el proyecto pertenece a un equipo)
+
+### Configuración
+
+<Tip>
+  **No se requiere configuración adicional.** Esta función está habilitada automáticamente para todos los proyectos registrados.
+</Tip>
+
+Para recibir alertas, asegúrate de que tu proyecto tenga:
+
+<Steps>
+  <Step title="Un dueño registrado">
+    Se asigna automáticamente al momento de agregar el proyecto en PM2 View.
+  </Step>
+  <Step title="SMTP configurado en las variables de entorno">
+    El servidor debe tener las credenciales SMTP para poder enviar los emails.
+  </Step>
+</Steps>
+
+#### Variables de entorno SMTP
+
+```env .env
+SMTP_HOST=smtp.gmail.com
+SMTP_PORT=465
+SMTP_USER=tu-email@gmail.com
+SMTP_PASS=tu-app-password
+SMTP_FROM=tu-email@gmail.com
+```
+
+### Ejemplo de email recibido
+
+```text Alerta de error
+Asunto: ⚠️ Process Error Alert: mi-api-server
+
+Process: mi-api-server
+Project: Mi API Server
+Previous Status: online
+Current Status: error
+Time: 2026-08-25 14:32:15
+```
+
+### Preguntas frecuentes
+
+<AccordionGroup>
+  <Accordion title="¿Recibo un email cada vez que mi proceso se reinicia?">
+    No. El periodo de cooldown de 5 minutos evita el spam. Si tu proceso falla y se reinicia varias veces en ese lapso, solo recibirás un email.
+  </Accordion>
+
+  <Accordion title="¿Puedo configurar qué procesos generan alertas?">
+    Actualmente todos los procesos registrados en PM2 View son monitoreados automáticamente. Los procesos de PM2 que no están registrados en la plataforma no se rastrean.
+  </Accordion>
+
+  <Accordion title="¿Qué pasa si el SMTP no está configurado?">
+    El sistema de alertas omitirá el envío de emails silenciosamente. No ocurrirán errores en la aplicación, pero no recibirás notificaciones hasta que configures las credenciales SMTP.
+  </Accordion>
+</AccordionGroup>
