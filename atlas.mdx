@@ -27,3 +27,52 @@ La documentación técnica y arquitectónica de ATLAS debe consultarse como fuen
 <Card title="Documentación oficial de ATLAS" icon="book" href="https://engine.clinicamedicos.com/atlas/docs/introduccion/">
   Consulta la guía técnica completa de ATLAS.
 </Card>
+
+## Desplegar cambios en ATLAS
+
+Cada vez que se hace un cambio en ATLAS (código o documentación), hay que actualizar la copia del servidor y reiniciar los procesos para que los cambios queden activos. Con la integración de GitHub en PM2 View, todo esto pasa solo con un `git push`.
+
+### Antes vs. ahora
+
+**Antes (manual):** cada deploy de ATLAS eran 4 pasos:
+
+1. SSH al server y `cd /home/rpatic/ATLAS/`.
+2. `git pull && pnpm build`.
+3. Reiniciar `atlas-backend` y `atlas-frontend` a mano en PM2 View.
+4. Aparte, correr `ATLAS_DOCS_BASE=/atlas/docs pnpm build:docs` (obligatorio, si no la doc no se publicaba).
+
+**Ahora:** hacés `git push` y nada más. El webhook dispara el pipeline completo:
+
+```text
+push → git pull → pnpm install → pnpm build → restart atlas-backend + atlas-frontend → verify online
+                                                                                    → ATLAS_DOCS_BASE=/atlas/docs pnpm build:docs  (post-deploy)
+```
+
+Sin SSH, sin restart manual, sin acordarte del `build:docs`.
+
+### Configuración en PM2 View (una sola vez)
+
+En el proyecto ATLAS → **Config**:
+
+| Campo | Valor |
+| --- | --- |
+| Automatic deployment | `ON` |
+| GitHub Repository | `owner/ATLAS` |
+| Branch | `main` |
+| `target_path` | `/home/rpatic/ATLAS/` |
+| `pm2_names` | `["atlas-backend", "atlas-frontend"]` |
+| Post-Deploy Actions | `pnpm build:docs` |
+
+Con eso, cada push (sea código o documentación) regenera la doc automáticamente al final. El warning de "si no corrés `build:docs` la doc no se publica" deja de ser una tarea manual.
+
+## Actualizar la documentación de ATLAS
+
+La documentación se regenera sola como paso post-deploy del pipeline anterior. Pero si por alguna razón tienes problemas, el comando que debes correr, para actualizar es este:
+
+```bash
+ATLAS_DOCS_BASE=/atlas/docs pnpm build:docs
+```
+
+<Tip>
+  Si necesitás forzar una regeneración de la doc sin esperar a un push, entrá al proyecto ATLAS en PM2 View y usá el botón de deploy manual: ejecuta el mismo pipeline (`git pull → install → build → restart → build:docs`).
+</Tip>
