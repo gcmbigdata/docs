@@ -76,13 +76,21 @@ Esto aplica para proyectos que tienen PM2 o son estáticos. Cuando se realiza un
         **Actualizar proyecto:** dos caminos desde la UI, sin tocar el server:
 
         1. **Manual:** botón de update/deploy → ejecuta el mismo pipeline pero con `git pull` en vez de clone (`deploy.service.ts`: _git pull → install → build → pm2 restart --update-env_).
+           ![Image](/images/image-5.png "Image")
+
+              
+
         2. **Auto-deploy:** habilitás auto-deploy por proyecto (`autoDeployEnabled` \+ `deployBranch` \+ `targetPath`). Cada `git push` a esa rama dispara el webhook → se encola un deployment → corre el pipeline automáticamente, con registro de deployments (commit SHA, logs, idempotencia por delivery ID).
+
+        ![Image](/images/image-6.png "Image")
+
+         
 
         ## La diferencia de fondo
 
         Lo que cambia conceptualmente es **quién hace el trabajo y cómo se autentica git**:
 
-        - **Antes:** vos eras el deploy system. La autenticación era estática (deploy keys/PATs permanentes en el server).
+        - **Antes:** Tu eras el deploy system. La autenticación era estática (deploy keys/PATs permanentes en el server).
         - **Ahora:** PM2 View es el deploy system. La autenticación es dinámica, `git-auth.provider.ts` mintea tokens de instalación de corta vida (1h) por operación, scopeados al repo. Si revocás la instalación, todo deja de funcionar al instante sin rotar claves.
 
         Lo único que sigue manual: configurar variables de entorno del proyecto (`.env`) y elegir el ecosystem file en el paso final del import.
@@ -91,9 +99,13 @@ Esto aplica para proyectos que tienen PM2 o son estáticos. Cuando se realiza un
 
         Después del deploy, PM2 View notifica por correo el resultado del despliegue con el estado, proyecto, repositorio, commit, duración y hora de finalización:
 
-        <Frame>
-          ![Correo de PM2 View con asunto "Deploy succeeded — paciente-trazador-api (main)" mostrando status Success, commit 203f23d y duración 6.1s.](/images/pm2-view-deploy-succeeded.png)
-        </Frame>
+        En caso de Éxito:
+
+        ![Image](/images/image-8.png "Image")
+
+        En caso de error:
+
+        ![Image](/images/image-1.png "Image")
       </Tab>
     </Tabs>
   </Step>

@@ -194,16 +194,29 @@ Además del botón **Update** manual, PM2 View soporta **despliegue automático*
 3. Reiniciar `atlas-backend` y `atlas-frontend` a mano en PM2 View.
 4. Aparte, correr `ATLAS_DOCS_BASE=/atlas/docs pnpm build:docs` (obligatorio, si no la doc no se publicaba).
 
-**Ahora.** Hacés `git push` y nada más. El webhook dispara el pipeline completo:
-
-```text
-push → git pull → pnpm install → pnpm build → restart atlas-backend + atlas-frontend → verify online
-                                                                                    → ATLAS_DOCS_BASE=/atlas/docs pnpm build:docs  (post-deploy)
-```
-
-Sin SSH, sin restart manual, sin acordarte del `build:docs`.
+**Ahora.** Hacés `git push` y nada más. El webhook dispara el pipeline completo. Sin SSH, sin restart manual, sin acordarte del `build:docs`.
 
 ### Qué hace el pipeline
+
+```mermaid
+graph TD
+    A["Push<br/>Git commit"] -->|código| B["Git pull<br/>Sync código"]
+    B -->|actualizar| C["pnpm install<br/>Dependencias"]
+    C -->|instalar| D["pnpm build<br/>Build apps"]
+    D -->|compilar| E["Restart<br/>atlas-backend + atlas-frontend<br/>Deploy nuevo código"]
+    E -->|reiniciar| F["Verify online<br/>Health check + API test"]
+    F -->|validar| G["Post-deploy<br/>pnpm build:docs<br/>"]
+    G -->|documentar| H["Deployment<br/>Completo"]
+
+    style A fill:#A8CBB7,stroke:#7FA58D,color:#24332A
+    style B fill:#AFC4D6,stroke:#829FB5,color:#263640
+    style C fill:#C4B8D9,stroke:#9D8DB8,color:#352F40
+    style D fill:#D9C3A5,stroke:#B49A75,color:#3D352B
+    style E fill:#D5A9A9,stroke:#B78383,color:#402F2F
+    style F fill:#A9C9C5,stroke:#7FA8A3,color:#293A38
+    style G fill:#C7CDD1,stroke:#9FA7AD,color:#30363A
+    style H fill:#A8CBB7,stroke:#7FA58D,color:#24332A
+```
 
 | Etapa | Acciones | En caso de fallo |
 | --- | --- | --- |
@@ -299,7 +312,9 @@ Permite ejecutar la persistencia del estado actual de PM2.
   Es **SUPER IMPORTANTE que lo realices cada que agregues un proyecto**, ya que este botón te permitirá guardar todos los procesos que se están ejecutando actualmente en el servidor a través de PM2.
 </Warning>
 
-Conceptualmente:
+![Image](/images/image-11.png "Image")
+
+<br />Conceptualmente:
 
 ```bash
 pm2 save
@@ -310,6 +325,8 @@ Esto permite guardar la lista actual de procesos para que pueda ser restaurada p
 ### PM2 Startup
 
 PM2 también permite configurar el arranque automático de los procesos cuando el servidor inicia.
+
+![Image](/images/image-12.png "Image")
 
 Conceptualmente:
 
@@ -326,3 +343,5 @@ El objetivo es que, después de un reinicio del servidor, los procesos previamen
 ### Métricas del servidor
 
 PM2 View también proporciona información relacionada con el estado de ejecución de las aplicaciones y del servidor. Esto permite tener una visión rápida del consumo de recursos y detectar comportamientos anómalos.
+
+![Image](/images/image-13.png "Image")
