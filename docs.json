@@ -83,7 +83,7 @@
         "tab": "Sección 3: Administración y Operación",
         "groups": [
           {
-            "group": "Estructura del servidor",
+            "group": "Organización del servidor RPATIC",
             "pages": [
               "administracion/estructura-del-servidor"
             ]

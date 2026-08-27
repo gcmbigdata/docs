@@ -10,12 +10,20 @@ Una duda común cuando se ve por primera vez `cloudflared` corriendo es: "¿publ
 
 Este es el camino "clásico" que se usa cuando un servicio interno se quiere exponer a internet a través del dominio corporativo:
 
-```text
-Cliente → DNS público (engine.clinicamedicos.com)
-       → Fortinet (reglas, firewall)
-       → Puertos 443/80 abiertos hacia el servidor
-       → Nginx (reverse proxy)
-       → Servicios internos
+```mermaid
+flowchart TD
+    Cliente["Cliente"]
+    DNS["DNS público<br/>engine.clinicamedicos.com"]
+    Fortinet["Fortinet<br/>Reglas / Firewall"]
+    Puertos["Puertos 443 / 80<br/>abiertos hacia el servidor"]
+    Nginx["Nginx<br/>Reverse Proxy"]
+    Servicios["Servicios internos"]
+
+    Cliente --> DNS
+    DNS --> Fortinet
+    Fortinet --> Puertos
+    Puertos --> Nginx
+    Nginx --> Servicios
 ```
 
 Para que este flujo funcione, hay que **abrir los puertos 443 y 80** de forma que puedan ser accedidos desde el exterior.
@@ -35,12 +43,23 @@ Puntos débiles del modelo:
 
 Con `cloudflared`, el camino cambia:
 
-```text
-Cliente → Cloudflare Edge (WAF, DDoS, rules)
-       ═══ túnel saliente encriptado ═══
-       → cloudflared agent (dentro del servidor)
-       → Nginx (127.0.0.1:443)
-       → Servicios internos
+```mermaid
+flowchart TD
+    Cliente["Cliente"]
+    Cloudflare["Cloudflare Edge<br/>WAF · DDoS · Rules"]
+    Tunel["═══ Túnel saliente encriptado ═══"]
+    Cloudflared["cloudflared agent<br/>Dentro del servidor"]
+    Nginx["Nginx<br/>127.0.0.1:443"]
+    Servicios["Servicios internos"]
+
+    Cliente --> Cloudflare
+    Cloudflare --> Tunel
+    Tunel --> Cloudflared
+    Cloudflared --> Nginx
+    Nginx --> Servicios
+
+    style Cloudflared fill:#f5a623,stroke:#333,color:#000
+    style Tunel fill:#fff5f5,stroke:#333
 ```
 
 Diferencias clave:
