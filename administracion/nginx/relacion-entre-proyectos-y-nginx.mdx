@@ -20,20 +20,42 @@ Existe una separación entre el código de las aplicaciones y la configuración 
 
 ## Relación general
 
-```text
-Código del proyecto
-        ↓
-~/Documentos/projects/<proyecto>
-        ↓
-Proceso de aplicación
-        ↓
-PM2 / Podman
-        ↓
-Nginx
-        ↓
-HTTPS
-        ↓
-engine.clinicamedicos.com ó https://gcmbigdata.online/pm2
+```mermaid
+flowchart TD
+    subgraph Local_Storage [Almacenamiento del Servidor]
+        Path["~/Documentos/projects/&lt;proyecto&gt;"]
+    end
+
+    subgraph Application_Runtime [Entorno de Produccion]
+        Process["Proceso de aplicación"]
+        PM2["PM2 (Process Manager)"]
+        Podman["Podman (Container Engine)"]
+    end
+
+    subgraph Web_Server [Servidor Web]
+        Nginx["Nginx Reverse Proxy"]
+        SSL["Certificado SSL (HTTPS)"]
+    end
+
+    subgraph Public_Endpoints [Puntos de Acceso Públicos]
+        URL1["engine.clinicamedicos.com"]
+        URL2["gcmbigdata.online/pm2"]
+    end
+
+    Path --> Process
+    Process --> PM2
+    Process --> Podman
+    PM2 --> Nginx
+    Podman --> Nginx
+    Nginx --> SSL
+    SSL --> URL1
+    SSL --> URL2
+
+    style Path fill:#f9f,stroke:#333,stroke-width:2px
+    style Nginx fill:#009639,color:#fff
+    style SSL fill:#ffd700,stroke:#333
+    style URL1 fill:#e1f5fe,stroke:#01579b
+    style URL2 fill:#e1f5fe,stroke:#01579b
 ```
 
 Esta separación permite administrar la configuración de acceso externo sin modificar directamente el código de la aplicación.

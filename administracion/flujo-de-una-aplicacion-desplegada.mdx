@@ -6,22 +6,26 @@ description: "Trayecto de una aplicación desde GitHub hasta el usuario final: c
 
 Una aplicación independiente puede involucrar varias capas dentro del servidor.
 
-```text
-                         GitHub
-                            ↓
-                    Código del proyecto
-                            ↓
-              ~/Documentos/projects/<proyecto>
-                            ↓
-                 Proceso de aplicación
-                       ↙        ↘
-                     PM2       Podman
-                       ↘        ↙
-                          Nginx
-                            ↓
-             engine.clinicamedicos.com
-                            ↓
-                         Usuario
+```mermaid
+graph TD
+    GitHub[GitHub Repository] --> Code["Código del Proyecto"]
+    Code --> Storage["~/Documentos/projects/&lt;proyecto&gt;"]
+    Storage --> Process["Proceso de Aplicación"]
+    
+    Process --> PM2["PM2"]
+    Process --> Podman["Podman"]
+    
+    PM2 --> Nginx["Nginx (Reverse Proxy)"]
+    Podman --> Nginx
+    
+    Nginx --> Domain["engine.clinicamedicos.com"]
+    Domain --> User["Usuario Final"]
+
+    style GitHub fill:#f0f0f0,stroke:#333
+    style Storage fill:#e1f5fe,stroke:#01579b
+    style Nginx fill:#dcfce7,stroke:#166534
+    style User fill:#fef9c3,stroke:#854d0e
+    style Process font-weight:bold
 ```
 
 No todos los proyectos utilizan Podman. Su utilización depende de los requerimientos específicos de cada aplicación.
