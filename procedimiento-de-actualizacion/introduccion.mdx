@@ -75,16 +75,11 @@ Esto aplica para proyectos que tienen PM2 o son estáticos. Cuando se realiza un
 
         **Actualizar proyecto:** dos caminos desde la UI, sin tocar el server:
 
-        1. **Manual:** botón de update/deploy → ejecuta el mismo pipeline pero con `git pull` en vez de clone (`deploy.service.ts`: _git pull → install → build → pm2 restart --update-env_).
-           ![Image](/images/image-5.png "Image")
-
-              
+        1. **Manual:** botón de update/deploy → ejecuta el mismo pipeline pero con `git pull` en vez de clone (`deploy.service.ts`: _git pull → install → build → pm2 restart --update-env_). <img src="/images/image-5.png" alt="Image" title="Image" />
 
         2. **Auto-deploy:** habilitás auto-deploy por proyecto (`autoDeployEnabled` \+ `deployBranch` \+ `targetPath`). Cada `git push` a esa rama dispara el webhook → se encola un deployment → corre el pipeline automáticamente, con registro de deployments (commit SHA, logs, idempotencia por delivery ID).
 
         ![Image](/images/image-6.png "Image")
-
-         
 
         ## La diferencia de fondo
 
@@ -106,6 +101,22 @@ Esto aplica para proyectos que tienen PM2 o son estáticos. Cuando se realiza un
         En caso de error:
 
         ![Image](/images/image-1.png "Image")
+      </Tab>
+      <Tab title="Proyecto no estático (no JavaScript)">
+        Para proyectos que no son estáticos ni de JavaScript (por ejemplo, Python), debes realizar el paso manual que requiera la tecnología del proyecto. El flujo general es:
+
+        ```bash
+        ssh servidor
+        cd /ruta/proyecto
+        git pull
+        # <paso que corresponda según la tecnología>
+        # Ejemplos:
+        #   Python:  pip install -r requirements.txt
+        #   Go:      go build ./...
+        pm2 restart app --update-env
+        ```
+
+        El paso intermedio dependerá del lenguaje y del gestor de dependencias del proyecto.
       </Tab>
     </Tabs>
   </Step>
