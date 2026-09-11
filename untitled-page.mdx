@@ -1,0 +1,42 @@
+---
+title: "Incorporación inicial de un proyecto al servidor"
+---
+
+<Info>
+  Esta guía solo aplica para proyectos que no son de JavaScript, que no entran en el flujo de autodeploy de pm2 view, como por ejemplo proyectos de python
+</Info>
+
+Antes de poder actualizar un proyecto, este debe encontrarse previamente desplegado en el servidor. Para incorporar un proyecto nuevo desde GitHub, se debe utilizar la **cuenta institucional** mediante el host SSH configurado:
+
+```text
+Host github-coordinacion
+```
+
+El proceso de incorporación inicial consiste en:
+
+1. Acceder al servidor.
+2. Ubicarse en el directorio destinado a los proyectos.
+   ```text
+   ~/Documents/projects
+   ```
+3. Clonar el repositorio utilizando SSH y el host institucional.
+4. Instalar las dependencias requeridas.
+5. Generar el build, cuando corresponda.
+6. Configurar las variables de entorno necesarias.
+7. Configurar el mecanismo de ejecución correspondiente: PM2, servicio, contenedor, etc.
+8. Validar que la aplicación haya quedado operativa.
+
+## Clonación mediante la cuenta institucional
+
+El repositorio debe clonarse utilizando la configuración SSH asociada a `github-coordinacion`.
+
+```shellscript
+ssh servidor
+cd ~/Documents/projects
+
+git clone git@github-coordinacion:organizacion/nombre-del-repositorio.git
+```
+
+<Note>
+  **Nota:** `github-coordinacion` no es el nombre del repositorio ni el dominio de GitHub. Es el alias definido en la configuración SSH del servidor mediante `~/.ssh/config`, y permite que Git utilice la identidad institucional configurada para las operaciones contra GitHub.
+</Note>
