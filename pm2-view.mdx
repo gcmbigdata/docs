@@ -117,7 +117,22 @@ Para facilitar la administración de los procesos PM2 utilizamos **PM2 View**, u
     De esta manera, **no necesitas conectarte nuevamente al servidor para ejecutar estos comandos manualmente**.
 
     <Frame>
-      ![Botón Update en la interfaz de PM2 View](/images/pm2-view-update-button.png)
+      <img
+        src="/images/00-1.png"
+        alt="00"
+        title="00"
+        lightAlt="00"
+        darkAlt="Botón Update en la interfaz de PM2 View"
+        className="dark:hidden"
+      />
+      <img
+        src="/images/00-1.png"
+        alt="00"
+        title="00"
+        lightAlt="00"
+        darkAlt="Botón Update en la interfaz de PM2 View"
+        className="hidden dark:block"
+      />
     </Frame>
   </Step>
   <Step title="Flujo resumido">
@@ -312,7 +327,7 @@ Permite ejecutar la persistencia del estado actual de PM2.
   Es **SUPER IMPORTANTE que lo realices cada que agregues un proyecto**, ya que este botón te permitirá guardar todos los procesos que se están ejecutando actualmente en el servidor a través de PM2.
 </Warning>
 
-![Image](/images/image-11.png "Image")
+![00](/images/00-2.png "00")
 
 <br />Conceptualmente:
 
@@ -326,7 +341,7 @@ Esto permite guardar la lista actual de procesos para que pueda ser restaurada p
 
 PM2 también permite configurar el arranque automático de los procesos cuando el servidor inicia.
 
-![Image](/images/image-12.png "Image")
+![00](/images/00-3.png "00")
 
 Conceptualmente:
 
@@ -344,7 +359,23 @@ El objetivo es que, después de un reinicio del servidor, los procesos previamen
 
 PM2 View también proporciona información relacionada con el estado de ejecución de las aplicaciones y del servidor. Esto permite tener una visión rápida del consumo de recursos y detectar comportamientos anómalos.
 
-![Image](/images/image-13.png "Image")
+![00](/images/00-4.png "00")
+
+## Port Manager
+
+Un inspector de redes dedicado a nivel del sistema y gestor de procesos creado para los administradores.
+
+> Inspección de zócalos: escanea los zócalos TCP y UDP activos usando ss (con lsof fallback).
+>
+> Deduplicación: Deduplicación inteligente de sockets a través de interfaces IPv4 e IPv6.
+>
+> Live Filter: búsqueda rápida por número de puerto, nombre del proceso, PID o dirección vinculada.
+>
+> OTP-Verified Kill: La liberación de puertos destructivos (kill -9 por PID o fuser -k por puerto) requiere un OTP de 6 dígitos con tiempo limitado entregado por correo electrónico.
+>
+> Audit Trail: cada cierre de puerto se registra con actor, objetivo y fecha en el registro de auditoría.
+
+![Image](/images/image-14.png "Image")
 
 ## Alertas de error en procesos
 
